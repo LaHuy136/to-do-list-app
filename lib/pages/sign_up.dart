@@ -1,31 +1,49 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:to_do_list_app/components/my_elevated_button.dart';
 import 'package:to_do_list_app/components/my_text_form_field.dart';
+import 'package:to_do_list_app/screens/verification_code.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
-class Login extends StatefulWidget {
-  const Login({super.key});
+class SignUp extends StatefulWidget {
+  const SignUp({super.key});
 
   @override
-  State<Login> createState() => _LoginState();
+  State<SignUp> createState() => _SignUpState();
 }
 
-class _LoginState extends State<Login> {
+class _SignUpState extends State<SignUp> {
+  final userNameController = TextEditingController();
   final emailController = TextEditingController();
   final pwController = TextEditingController();
+  final confirmPwController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.defaultText,
-      appBar: AppBar(backgroundColor: AppColors.defaultText),
+      appBar: AppBar(
+        leadingWidth: 55,
+        leading: Container(
+          margin: EdgeInsets.only(left: 8, top: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            color: AppColors.primary,
+          ),
+          alignment: Alignment.center,
+          child: InkWell(
+            onTap: () => Navigator.pop(context),
+            child: Icon(Icons.arrow_back_rounded, size: 22),
+          ),
+        ),
+        backgroundColor: AppColors.defaultText,
+        foregroundColor: AppColors.defaultText,
+      ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // SizedBox(height: 50),
             Center(
               child: Column(
                 children: [
@@ -51,9 +69,9 @@ class _LoginState extends State<Login> {
                   ),
 
                   const SizedBox(height: 50),
-                  // Login to your account
+                  // Create your account
                   const Text(
-                    'Login to your account',
+                    'Create your account',
                     style: TextStyle(
                       fontFamily: 'Poppins',
                       fontWeight: FontWeight.w500,
@@ -61,6 +79,23 @@ class _LoginState extends State<Login> {
                     ),
                   ),
                 ],
+              ),
+            ),
+
+            const SizedBox(height: 20),
+            // Username
+            MyTextFormField(
+              controller: userNameController,
+              hintText: '   Username',
+              prefixIcon: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(8),
+                    bottomLeft: Radius.circular(8),
+                  ),
+                  color: AppColors.primary,
+                ),
+                child: Icon(Icons.person_rounded, color: AppColors.defaultText),
               ),
             ),
 
@@ -82,10 +117,9 @@ class _LoginState extends State<Login> {
             ),
 
             const SizedBox(height: 20),
-            // Password
+            // pw
             MyTextFormField(
               controller: pwController,
-              isPassword: true,
               hintText: '   Password',
               prefixIcon: Container(
                 decoration: BoxDecoration(
@@ -99,29 +133,33 @@ class _LoginState extends State<Login> {
               ),
             ),
 
-            // Forgot Password?
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                SizedBox.shrink(),
-                InkWell(
-                  onTap: () {},
-                  child: const Text(
-                    'Forgot password?',
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: AppColors.unfocusedIcon,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.w400,
-                    ),
+            const SizedBox(height: 20),
+            // Confirm PW
+            MyTextFormField(
+              controller: confirmPwController,
+              hintText: '   Confirm Password',
+              prefixIcon: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(8),
+                    bottomLeft: Radius.circular(8),
                   ),
+                  color: AppColors.primary,
                 ),
-              ],
+                child: Icon(Icons.lock_rounded, color: AppColors.defaultText),
+              ),
             ),
 
             const SizedBox(height: 25),
-            // Button Login
-            MyElevatedButton(onPressed: () {}, textButton: 'Login'),
+            // Button SignUp
+            MyElevatedButton(
+              onPressed:
+                  () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => VerificationCode()),
+                  ),
+              textButton: 'Register',
+            ),
 
             const SizedBox(height: 35),
             // Or Login with
@@ -194,35 +232,6 @@ class _LoginState extends State<Login> {
                       'assets/images/twitter.svg',
                       width: 35,
                       height: 35,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Don\'t have an account?',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-                const SizedBox(width: 4),
-                InkWell(
-                  onTap:
-                      () => Navigator.pushNamed(context, '/signUp'),
-                  child: Text(
-                    'Sign Up',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: AppColors.primary,
-                      fontFamily: 'Poppins-Regular',
-                      fontWeight: FontWeight.w400,
                     ),
                   ),
                 ),
