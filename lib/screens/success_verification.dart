@@ -72,7 +72,15 @@ class SuccessVerification extends StatelessWidget {
 
             const SizedBox(height: 70),
             // Button Go To DashBoard
-            MyElevatedButton(onPressed: () {}, textButton: 'Go to Dashboard'),
+            MyElevatedButton(
+              onPressed:
+                  () => Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    '/home',
+                    ModalRoute.withName('/home'),
+                  ),
+              textButton: 'Go to Dashboard',
+            ),
           ],
         ),
       ),

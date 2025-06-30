@@ -79,19 +79,23 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
         enabled: widget.enable!,
         enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(color: AppColors.unfocusedIcon),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.all(Radius.circular(8)),
         ),
         focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(color: AppColors.secondary),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.all(Radius.circular(8)),
         ),
         disabledBorder: OutlineInputBorder(
           borderSide: BorderSide(color: AppColors.unfocusedIcon),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.all(Radius.circular(8)),
         ),
         errorBorder: OutlineInputBorder(
           borderSide: BorderSide(color: AppColors.destructive),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.all(Radius.circular(8)),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: AppColors.destructive),
+          borderRadius: BorderRadius.all(Radius.circular(8)),
         ),
       ),
     );
