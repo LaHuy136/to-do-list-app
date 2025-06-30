@@ -224,7 +224,7 @@ class _LoginState extends State<Login> {
                       ),
                       padding: EdgeInsets.all(16),
                       child: SvgPicture.asset(
-                        'assets/images/google.svg',
+                        'assets/icons/google.svg',
                         width: 35,
                         height: 35,
                       ),
@@ -241,7 +241,7 @@ class _LoginState extends State<Login> {
                       ),
                       padding: EdgeInsets.all(16),
                       child: SvgPicture.asset(
-                        'assets/images/facebook.svg',
+                        'assets/icons/facebook.svg',
                         width: 35,
                         height: 35,
                       ),
@@ -258,7 +258,7 @@ class _LoginState extends State<Login> {
                       ),
                       padding: EdgeInsets.all(16),
                       child: SvgPicture.asset(
-                        'assets/images/twitter.svg',
+                        'assets/icons/twitter.svg',
                         width: 35,
                         height: 35,
                       ),
