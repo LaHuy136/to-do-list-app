@@ -1,32 +1,46 @@
-// ignore_for_file: use_build_context_synchronously, unused_local_variable
+// ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:to_do_list_app/components/my_custom_snackbar.dart';
 import 'package:to_do_list_app/components/my_elevated_button.dart';
 import 'package:to_do_list_app/components/my_text_form_field.dart';
 import 'package:to_do_list_app/services/auth.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
-class Login extends StatefulWidget {
-  const Login({super.key});
+class ResetPassword extends StatefulWidget {
+  const ResetPassword({super.key});
 
   @override
-  State<Login> createState() => _LoginState();
+  State<ResetPassword> createState() => _ResetPasswordState();
 }
 
-class _LoginState extends State<Login> {
+class _ResetPasswordState extends State<ResetPassword> {
   final formKey = GlobalKey<FormState>();
   bool isLoading = false;
   final emailController = TextEditingController();
-  final pwController = TextEditingController();
+  final newPasswordController = TextEditingController();
+  final confirmPwController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.defaultText,
       appBar: AppBar(
+        leadingWidth: 55,
+        leading: Container(
+          margin: EdgeInsets.only(left: 8, top: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            color: AppColors.primary,
+          ),
+          alignment: Alignment.center,
+          child: InkWell(
+            onTap: () => Navigator.pop(context),
+            child: Icon(Icons.arrow_back_rounded, size: 22),
+          ),
+        ),
         backgroundColor: AppColors.defaultText,
-        automaticallyImplyLeading: false,
+        foregroundColor: AppColors.defaultText,
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16),
@@ -36,7 +50,6 @@ class _LoginState extends State<Login> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // SizedBox(height: 50),
               Center(
                 child: Column(
                   children: [
@@ -62,9 +75,9 @@ class _LoginState extends State<Login> {
                     ),
 
                     const SizedBox(height: 50),
-                    // Login to your account
+                    // Reset your password
                     const Text(
-                      'Login to your account',
+                      'Reset your password',
                       style: TextStyle(
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.w500,
@@ -108,11 +121,11 @@ class _LoginState extends State<Login> {
               ),
 
               const SizedBox(height: 20),
-              // Password
+              // pw
               MyTextFormField(
-                controller: pwController,
+                controller: newPasswordController,
+                hintText: '   New password',
                 isPassword: true,
-                hintText: '   Password',
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your password';
@@ -134,48 +147,65 @@ class _LoginState extends State<Login> {
                 ),
               ),
 
-              // Forgot Password?
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SizedBox.shrink(),
-                  InkWell(
-                    onTap: () => Navigator.pushNamed(context, '/resetPassword'),
-                    child: const Text(
-                      'Forgot password?',
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: AppColors.unfocusedIcon,
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w400,
-                      ),
+              const SizedBox(height: 20),
+              // Confirm PW
+              MyTextFormField(
+                controller: confirmPwController,
+                hintText: '   Confirm Password',
+                isPassword: true,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your password';
+                  }
+                  if (value.length < 6) {
+                    return 'Your password is not enough length';
+                  }
+                  return null;
+                },
+                prefixIcon: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(8),
+                      bottomLeft: Radius.circular(8),
                     ),
+                    color: AppColors.primary,
                   ),
-                ],
+                  child: Icon(Icons.lock_rounded, color: AppColors.defaultText),
+                ),
               ),
 
               const SizedBox(height: 25),
-              // Button Login
+              // Button Reset Password
               MyElevatedButton(
                 onPressed: () async {
-                  if (!formKey.currentState!.validate()) return;
+                  final email = emailController.text.trim();
+                  final newPassword = newPasswordController.text;
+                  final confirmPassword = confirmPwController.text;
+
+                  if (newPassword != confirmPassword) {
+                    showCustomSnackBar(
+                      context: context,
+                      message: 'Passwords do not match',
+                      type: SnackBarType.error,
+                    );
+                    return;
+                  }
 
                   setState(() => isLoading = true);
 
                   try {
-                    final data = await AuthAPI.login(
-                      email: emailController.text.trim(),
-                      password: pwController.text.trim(),
+                    final success = await AuthAPI.updatePassword(
+                      email: email,
+                      newPassword: newPassword,
                     );
-                    showCustomSnackBar(
-                      context: context,
-                      message: 'Login successful',
-                    );
-                    Navigator.pushNamedAndRemoveUntil(
-                      context,
-                      '/home',
-                      ModalRoute.withName('/home'),
-                    );
+
+                    if (success) {
+                      showCustomSnackBar(
+                        context: context,
+                        message: 'Password updated successfully',
+                      );
+                      Navigator.pushReplacementNamed(context, '/login');
+                    }
                   } catch (e) {
                     showCustomSnackBar(
                       context: context,
@@ -187,7 +217,7 @@ class _LoginState extends State<Login> {
                   }
                 },
                 isLoading: isLoading,
-                textButton: 'Login',
+                textButton: 'Reset Password',
               ),
 
               const SizedBox(height: 35),
@@ -261,34 +291,6 @@ class _LoginState extends State<Login> {
                         'assets/images/twitter.svg',
                         width: 35,
                         height: 35,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Don\'t have an account?',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  InkWell(
-                    onTap: () => Navigator.pushNamed(context, '/signUp'),
-                    child: Text(
-                      'Sign Up',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: AppColors.primary,
-                        fontFamily: 'Poppins-Regular',
-                        fontWeight: FontWeight.w400,
                       ),
                     ),
                   ),

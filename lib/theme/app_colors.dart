@@ -10,5 +10,6 @@ class AppColors {
   static const Color disabledSecondary = Color(0xFFC6C2C2);
   static const Color disabledTertiary = Color(0xFFEBF2FF);
   static const Color destructive = Color(0xFFCB2F2F);
+  static const Color success = Color(0xFF00C800);
   static const Color defaultText = Color(0xFFFFFFFF);
 }

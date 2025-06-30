@@ -1,17 +1,58 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:to_do_list_app/components/my_custom_snackbar.dart';
 import 'package:to_do_list_app/components/my_elevated_button.dart';
 import 'package:to_do_list_app/screens/success_verification.dart';
+import 'package:to_do_list_app/services/auth.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
 
 class VerificationCode extends StatefulWidget {
-  const VerificationCode({super.key});
+  final String email;
+  const VerificationCode({super.key, required this.email});
 
   @override
   State<VerificationCode> createState() => _VerificationCodeState();
 }
 
 class _VerificationCodeState extends State<VerificationCode> {
+  String currentCode = '';
+  int resendSeconds = 60;
+  bool isResendAvailable = false;
+  late Timer resendTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    startResendTimer();
+  }
+
+  void startResendTimer() {
+    isResendAvailable = false;
+    resendSeconds = 60;
+    resendTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (resendSeconds == 0) {
+        setState(() {
+          isResendAvailable = true;
+        });
+        resendTimer.cancel();
+      } else {
+        setState(() {
+          resendSeconds--;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    resendTimer.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,7 +80,7 @@ class _VerificationCodeState extends State<VerificationCode> {
           // mainAxisAlignment: MainAxisAlignment.center,
           // crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Text(
+            Text(
               'TASK-WAN',
               style: TextStyle(
                 color: AppColors.primary,
@@ -49,7 +90,7 @@ class _VerificationCodeState extends State<VerificationCode> {
               ),
             ),
             // App Subname
-            const Text(
+            Text(
               'Management App',
               style: TextStyle(
                 color: AppColors.disabledPrimary,
@@ -59,9 +100,9 @@ class _VerificationCodeState extends State<VerificationCode> {
               ),
             ),
 
-            const SizedBox(height: 50),
+            SizedBox(height: 50),
             // Create your account
-            const Text(
+            Text(
               'Verify Account',
               style: TextStyle(
                 fontFamily: 'Poppins',
@@ -77,9 +118,9 @@ class _VerificationCodeState extends State<VerificationCode> {
               height: 200,
             ),
 
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
             // Subtil Image
-            const Text(
+            Text(
               'Please enter the verification number we send to your email',
               style: TextStyle(
                 fontFamily: 'Poppins',
@@ -89,7 +130,7 @@ class _VerificationCodeState extends State<VerificationCode> {
               textAlign: TextAlign.center,
             ),
 
-            const SizedBox(height: 60),
+            SizedBox(height: 60),
             // Enter code
             PinCodeTextField(
               appContext: context,
@@ -106,38 +147,79 @@ class _VerificationCodeState extends State<VerificationCode> {
               ),
               keyboardType: TextInputType.number,
               onChanged: (value) {
-                // handle code change
+                setState(() {
+                  currentCode = value;
+                });
               },
             ),
             Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text(
-                  'Don\'t recieve a code? ',
+                Text(
+                  'Didn\'t receive a code? ',
                   style: TextStyle(
                     color: AppColors.disabledSecondary,
                     fontSize: 12,
                   ),
                 ),
                 InkWell(
-                  onTap: () {},
+                  onTap:
+                      isResendAvailable
+                          ? () async {
+                            final ok = await AuthAPI.resendCode(widget.email);
+                            if (ok) {
+                              showCustomSnackBar(
+                                context: context,
+                                message: 'OTP resent',
+                              );
+                              startResendTimer();
+                            } else {
+                              showCustomSnackBar(
+                                context: context,
+                                message: 'Failed to resend',
+                                type: SnackBarType.error,
+                              );
+                            }
+                          }
+                          : null,
                   child: Text(
-                    'Resend',
-                    style: TextStyle(color: AppColors.primary, fontSize: 12),
+                    isResendAvailable ? 'Resend' : 'Resend (${resendSeconds}s)',
+                    style: TextStyle(
+                      color:
+                          isResendAvailable
+                              ? AppColors.primary
+                              : AppColors.disabledSecondary,
+                      fontSize: 12,
+                    ),
                   ),
                 ),
               ],
             ),
 
-            const SizedBox(height: 60),
+            SizedBox(height: 60),
             // Button Confirm
             MyElevatedButton(
-              onPressed:
-                  () => Navigator.push(
+              onPressed: () async {
+                final success = await AuthAPI.verifyCode(
+                  widget.email,
+                  currentCode,
+                );
+
+                if (success) {
+                  Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
                       builder: (context) => SuccessVerification(),
                     ),
-                  ),
+                  );
+                } else {
+                  showCustomSnackBar(
+                    context: context,
+                    message: 'Verification failed',
+                    type: SnackBarType.error,
+                  );
+                }
+              },
               textButton: 'Confirm',
             ),
           ],

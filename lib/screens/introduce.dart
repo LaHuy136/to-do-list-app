@@ -19,7 +19,7 @@ class _IntroduceState extends State<Introduce> {
   @override
   void initState() {
     super.initState();
-    _futureData = Onboarding.fetchOnboarding();
+    _futureData = OnboardingAPI.fetchOnboarding();
   }
 
   @override
