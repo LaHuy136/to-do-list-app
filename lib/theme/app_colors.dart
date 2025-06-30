@@ -12,4 +12,5 @@ class AppColors {
   static const Color destructive = Color(0xFFCB2F2F);
   static const Color success = Color(0xFF00C800);
   static const Color defaultText = Color(0xFFFFFFFF);
+  static const Color bgprogessBar = Color(0xFF000000);
 }

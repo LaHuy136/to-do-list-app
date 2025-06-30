@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 const String baseUrl = 'http://192.168.38.126:3000/auth';
 
@@ -49,7 +50,7 @@ class AuthAPI {
     }
   }
 
-  static Future<dynamic> login({
+  static Future<bool> login({
     required String email,
     required String password,
   }) async {
@@ -60,10 +61,17 @@ class AuthAPI {
     );
 
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      final data = jsonDecode(response.body);
+
+      // Lưu vào SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('token', data['token']);
+      await prefs.setInt('id', data['user']['id']);
+      await prefs.setString('username', data['user']['username']);
+      await prefs.setString('email', data['user']['email']);
+
+      return true;
     } else {
-      print('Status: ${response.statusCode}');
-      print('Body: ${response.body}');
       throw Exception(jsonDecode(response.body)['message'] ?? 'Login failed');
     }
   }

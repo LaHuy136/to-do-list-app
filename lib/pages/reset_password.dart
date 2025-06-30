@@ -1,7 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:to_do_list_app/components/my_custom_snackbar.dart';
 import 'package:to_do_list_app/components/my_elevated_button.dart';
 import 'package:to_do_list_app/components/my_text_form_field.dart';
@@ -241,61 +240,61 @@ class _ResetPasswordState extends State<ResetPassword> {
               ),
 
               const SizedBox(height: 20),
-              // Social Button
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  // Google
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: AppColors.disabledTertiary),
-                      ),
-                      padding: EdgeInsets.all(16),
-                      child: SvgPicture.asset(
-                        'assets/images/google.svg',
-                        width: 35,
-                        height: 35,
-                      ),
-                    ),
-                  ),
+              // // Social Button
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              //   children: [
+              //     // Google
+              //     Expanded(
+              //       child: Container(
+              //         decoration: BoxDecoration(
+              //           borderRadius: BorderRadius.circular(8),
+              //           border: Border.all(color: AppColors.disabledTertiary),
+              //         ),
+              //         padding: EdgeInsets.all(16),
+              //         child: SvgPicture.asset(
+              //           'assets/icons/google.svg',
+              //           width: 35,
+              //           height: 35,
+              //         ),
+              //       ),
+              //     ),
 
-                  const SizedBox(width: 40),
-                  // Facebook
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: AppColors.disabledTertiary),
-                      ),
-                      padding: EdgeInsets.all(16),
-                      child: SvgPicture.asset(
-                        'assets/images/facebook.svg',
-                        width: 35,
-                        height: 35,
-                      ),
-                    ),
-                  ),
+              //     const SizedBox(width: 40),
+              //     // Facebook
+              //     Expanded(
+              //       child: Container(
+              //         decoration: BoxDecoration(
+              //           borderRadius: BorderRadius.circular(8),
+              //           border: Border.all(color: AppColors.disabledTertiary),
+              //         ),
+              //         padding: EdgeInsets.all(16),
+              //         child: SvgPicture.asset(
+              //           'assets/icons/facebook.svg',
+              //           width: 35,
+              //           height: 35,
+              //         ),
+              //       ),
+              //     ),
 
-                  const SizedBox(width: 40),
-                  // Twitter
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: AppColors.disabledTertiary),
-                      ),
-                      padding: EdgeInsets.all(16),
-                      child: SvgPicture.asset(
-                        'assets/images/twitter.svg',
-                        width: 35,
-                        height: 35,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              //     const SizedBox(width: 40),
+              //     // Twitter
+              //     Expanded(
+              //       child: Container(
+              //         decoration: BoxDecoration(
+              //           borderRadius: BorderRadius.circular(8),
+              //           border: Border.all(color: AppColors.disabledTertiary),
+              //         ),
+              //         padding: EdgeInsets.all(16),
+              //         child: SvgPicture.asset(
+              //           'assets/icons/twitter.svg',
+              //           width: 35,
+              //           height: 35,
+              //         ),
+              //       ),
+              //     ),
+              //   ],
+              // ),
             ],
           ),
         ),

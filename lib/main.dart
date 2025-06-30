@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:to_do_list_app/pages/login.dart';
 import 'package:to_do_list_app/pages/reset_password.dart';
 import 'package:to_do_list_app/pages/sign_up.dart';
-import 'package:to_do_list_app/pages/task_management.dart';
+import 'package:to_do_list_app/pages/dashboard.dart';
 import 'package:to_do_list_app/screens/introduce.dart';
 
 void main() async {
@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
 
-      initialRoute: '/',
+      initialRoute: '/login',
       routes: {
         '/': (context) => const Introduce(),
         '/home': (context) => const TaskManagement(),
