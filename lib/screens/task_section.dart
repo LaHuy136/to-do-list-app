@@ -51,7 +51,7 @@ class _TaskSectionState extends State<TaskSection> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          widget.category == 'Prioty' ? 'My Prioty Task' : 'Daily Task',
+          widget.category == 'Priority' ? 'My Priority Task' : 'Daily Task',
           style: const TextStyle(
             fontFamily: 'Poppins',
             fontWeight: FontWeight.w600,
@@ -60,7 +60,7 @@ class _TaskSectionState extends State<TaskSection> {
         ),
         const SizedBox(height: 10),
 
-        if (widget.category == 'Prioty')
+        if (widget.category == 'Priority')
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(

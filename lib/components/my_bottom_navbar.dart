@@ -31,7 +31,7 @@ class _MyBottomNavbarState extends State<MyBottomNavbar> {
           buildNavItem(
             context,
             svgPath: 'assets/icons/calendar.svg',
-            route: '/signUp',
+            route: '/calendar',
             currentRoute: currentRoute,
           ),
           buildNavItem(
