@@ -18,10 +18,10 @@ class TaskManagement extends StatefulWidget {
 }
 
 class _TaskManagementState extends State<TaskManagement> {
-  late int userid;
+  int userid = 0;
   String username = '';
   String formattedDate = '';
-  List<Map<String, dynamic>> priotyTasks = [];
+  List<Map<String, dynamic>> priorityTasks = [];
   List<Map<String, dynamic>> dailyTasks = [];
 
   @override
@@ -34,11 +34,11 @@ class _TaskManagementState extends State<TaskManagement> {
 
   Future<void> loadTasks() async {
     try {
-      final allTasks = await TaskAPI.getAllTasks(); // hoặc từ API của bạn
+      final allTasks = await TaskAPI.getAllTasks(); 
       setState(() {
-        priotyTasks =
+        priorityTasks =
             allTasks
-                .where((t) => t['category'] == 'Prioty')
+                .where((t) => t['category'] == 'Priority')
                 .toList()
                 .cast<Map<String, dynamic>>();
         dailyTasks =
@@ -72,7 +72,11 @@ class _TaskManagementState extends State<TaskManagement> {
           padding: const EdgeInsets.only(left: 16, top: 16),
           child: Text(
             formattedDate,
-            style: TextStyle(fontFamily: 'Poppins', fontSize: 12),
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 12,
+              fontWeight: FontWeight.w400,
+            ),
           ),
         ),
         actions: [
@@ -115,9 +119,9 @@ class _TaskManagementState extends State<TaskManagement> {
             ),
 
             SizedBox(height: 32),
-            TaskSection(tasks: priotyTasks, category: 'Prioty', userId: userid,),
+            TaskSection(tasks: priorityTasks, category: 'Priority', userId: userid),
             const SizedBox(height: 15),
-            TaskSection(tasks: dailyTasks, category: 'Daily', userId: userid,),
+            TaskSection(tasks: dailyTasks, category: 'Daily', userId: userid),
           ],
         ),
       ),
