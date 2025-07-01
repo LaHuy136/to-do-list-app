@@ -2,17 +2,17 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class TodoAPI {
-  static const String baseUrl = 'http://192.168.38.126:3000/todo';
+  static const String baseUrl = 'http://192.168.38.126:3000/todoItem';
 
   static Future<List<dynamic>> getTodosByTask(int taskId) async {
-    final res = await http.get(Uri.parse('$baseUrl/task/$taskId'));
+    final res = await http.get(Uri.parse('$baseUrl/tasks/$taskId'));
     if (res.statusCode == 200) return jsonDecode(res.body);
     throw Exception('Failed to load todos');
   }
 
-  static Future<dynamic> createTodo(Map<String, dynamic> todo) async {
+  static Future<dynamic> createTodo(Map<String, dynamic> todo, int taskId) async {
     final res = await http.post(
-      Uri.parse(baseUrl),
+      Uri.parse('$baseUrl/tasks/$taskId'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(todo),
     );
