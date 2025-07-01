@@ -1,7 +1,8 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:to_do_list_app/components/my_custom_snackbar.dart';
 import 'package:to_do_list_app/components/my_elevated_button.dart';
 import 'package:to_do_list_app/services/task.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
@@ -212,8 +213,27 @@ class _DetailDailyTaskState extends State<DetailDailyTask> {
                     onPressed:
                         isExpired
                             ? null
-                            : () {
-                              Navigator.pop(context, true);
+                            : () async {
+                              setState(() => isLoading = true);
+
+                              try {
+                                await TaskAPI.updateTask(task['id'], {
+                                  ...task,
+                                  'is_done': true,
+                                });
+
+                                setState(() => isLoading = false);
+                                Navigator.pop(
+                                  context,
+                                  true,
+                                ); 
+                              } catch (e) {
+                                setState(() => isLoading = false);
+                                showCustomSnackBar(
+                                  context: context,
+                                  message: 'Update daily task as done is failed',
+                                );
+                              }
                             },
                     textButton: isExpired ? 'Expired' : 'Finish',
                   ),
