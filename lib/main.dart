@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:to_do_list_app/pages/calendar.dart';
 import 'package:to_do_list_app/pages/login.dart';
+import 'package:to_do_list_app/pages/profile.dart';
 import 'package:to_do_list_app/pages/reset_password.dart';
 import 'package:to_do_list_app/pages/sign_up.dart';
 import 'package:to_do_list_app/pages/dashboard.dart';
@@ -26,6 +27,7 @@ class MyApp extends StatelessWidget {
         '/signUp': (context) => const SignUp(),
         '/resetPassword': (context) => const ResetPassword(),
         '/calendar': (context) => const Calendar(),
+        '/profile': (context) => const Profile(),
       },
     );
   }

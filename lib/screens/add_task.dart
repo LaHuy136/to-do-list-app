@@ -7,7 +7,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:to_do_list_app/components/my_custom_snackbar.dart';
 import 'package:to_do_list_app/components/my_elevated_button.dart';
 import 'package:to_do_list_app/services/task.dart';
+import 'package:to_do_list_app/services/todo.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
+import 'package:to_do_list_app/widget/todo_modal.dart';
 
 class AddTask extends StatefulWidget {
   const AddTask({super.key});
@@ -18,12 +20,14 @@ class AddTask extends StatefulWidget {
 
 class _AddTaskState extends State<AddTask> {
   DateTime startDate = DateTime.now();
-  DateTime endDate = DateTime.now();
+  DateTime endDate = DateTime.now().add(const Duration(days: 1));
   String selectedCategory = '';
   final TextEditingController titleController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
+  final TextEditingController editingController = TextEditingController();
   bool isLoading = false;
   int userId = 0;
+  List<dynamic> todos = [];
 
   @override
   void initState() {
@@ -102,7 +106,16 @@ class _AddTaskState extends State<AddTask> {
 
     setState(() => isLoading = true);
     try {
-      final result = await TaskAPI.createTask(task);
+      final taskResult = await TaskAPI.createTask(task);
+      final taskId = taskResult['id'];
+
+      for (final todo in todos) {
+        await TodoAPI.createTodo({
+          'content': todo['content'],
+          'is_done': todo['is_done'] ?? false,
+        }, taskId);
+      }
+
       showCustomSnackBar(
         context: context,
         message: 'New task has been created successfully',
@@ -255,7 +268,70 @@ class _AddTaskState extends State<AddTask> {
                   maxLines: 5,
                 ),
 
-                const SizedBox(height: 24),
+                if (selectedCategory == 'Priority') ...[
+                  // To Do Item
+                  const SizedBox(height: 24),
+                  Text(
+                    'To do List',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  SizedBox(height: 6),
+
+                  // Add To do
+                  MyElevatedButton(
+                    onPressed: () {
+                      showAddTodoModal();
+                    },
+                    textButton: '+',
+                  ),
+                ],
+                if (todos.isNotEmpty) ...[
+                  SizedBox(height: 10),
+                  Column(
+                    children:
+                        todos
+                            .map(
+                              (todo) => Container(
+                                padding: EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: AppColors.disabledTertiary,
+                                  ),
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        todo['content'],
+                                        style: TextStyle(
+                                          fontFamily: 'Poppins',
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      ),
+                                    ),
+                                    Checkbox(
+                                      value: todo['is_done'] == true,
+                                      activeColor: AppColors.primary,
+                                      onChanged: (value) async {},
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            )
+                            .toList(),
+                  ),
+                ],
+
+                SizedBox(height: 32),
 
                 // Create Button
                 MyElevatedButton(
@@ -369,6 +445,32 @@ class _AddTaskState extends State<AddTask> {
           ),
         ),
       ),
+    );
+  }
+
+  void showAddTodoModal() {
+    final newTodoController = TextEditingController();
+    bool isDone = false;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder:
+          (context) => TodoModal(
+            title: 'New To do',
+            controller: newTodoController,
+            onSubmit: () {
+              final content = newTodoController.text.trim();
+              if (content.isEmpty) return;
+              setState(() {
+                todos.add({'content': content, 'is_done': isDone});
+              });
+              Navigator.pop(context);
+            },
+          ),
     );
   }
 }
