@@ -47,7 +47,7 @@ class _DetailPriorityTaskState extends State<DetailPriorityTask> {
   Future<void> fetchTodos() async {
     try {
       todos = await TodoAPI.getTodosByTask(widget.taskId);
-      setState(() {}); // Cập nhật lại UI
+      setState(() {}); 
     } catch (e) {
       print('Lỗi khi tải todos: $e');
       showCustomSnackBar(context: context, message: 'Error loading list todo');
@@ -100,7 +100,7 @@ class _DetailPriorityTaskState extends State<DetailPriorityTask> {
             ),
             actions: [
               Padding(
-                padding: const EdgeInsets.only(right: 16),
+                padding: const EdgeInsets.only(right: 16, top: 8),
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
@@ -108,7 +108,7 @@ class _DetailPriorityTaskState extends State<DetailPriorityTask> {
                   ),
                   padding: EdgeInsets.all(16),
                   child: InkWell(
-                    onTap: () => Navigator.pop(context),
+                    onTap: () => Navigator.pop(context, true),
                     child: SvgPicture.asset(
                       'assets/icons/close.svg',
                       width: 16,
