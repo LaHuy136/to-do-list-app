@@ -7,12 +7,14 @@ class TaskSection extends StatefulWidget {
   final List<Map<String, dynamic>> tasks;
   final String category;
   final int userId;
+  final VoidCallback onTaskChanged;
 
   const TaskSection({
     super.key,
     required this.tasks,
     required this.category,
     required this.userId,
+    required this.onTaskChanged,
   });
 
   @override
@@ -36,7 +38,11 @@ class _TaskSectionState extends State<TaskSection> {
   Widget build(BuildContext context) {
     final filteredTasks =
         widget.tasks
-            .where((t) => t['category'] == widget.category && t['user_id'] == widget.userId)
+            .where(
+              (t) =>
+                  t['category'] == widget.category &&
+                  t['user_id'] == widget.userId,
+            )
             .toList();
 
     final List<Color> taskColors = [
@@ -78,14 +84,19 @@ class _TaskSectionState extends State<TaskSection> {
                     return Padding(
                       padding: const EdgeInsets.only(right: 16),
                       child: InkWell(
-                        onTap: () {
-                          Navigator.push(
+                        onTap: () async {
+                          final result = await Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder:
                                   (_) => DetailPriorityTask(taskId: task['id']),
                             ),
                           );
+
+                          if (result == true) {
+                            widget
+                                .onTaskChanged(); 
+                          }
                         },
                         child: Container(
                           height: 300,
@@ -198,7 +209,7 @@ class _TaskSectionState extends State<TaskSection> {
 
                         if (result == true) {
                           setState(() {
-                            task['is_done'] = true;
+                            widget.onTaskChanged();
                           });
                         }
                       },
@@ -225,7 +236,8 @@ class _TaskSectionState extends State<TaskSection> {
                             ),
                             Radio(
                               value: true,
-                              groupValue: taskCompleted || isExpired || isCompleted,
+                              groupValue:
+                                  taskCompleted || isExpired || isCompleted,
                               onChanged: (_) {},
                               activeColor: AppColors.primary,
                             ),

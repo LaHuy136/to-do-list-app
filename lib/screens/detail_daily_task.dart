@@ -95,7 +95,7 @@ class _DetailDailyTaskState extends State<DetailDailyTask> {
                   ),
                   padding: EdgeInsets.all(16),
                   child: InkWell(
-                    onTap: () => Navigator.pop(context),
+                    onTap: () => Navigator.pop(context, true),
                     child: SvgPicture.asset(
                       'assets/icons/close.svg',
                       width: 16,
@@ -223,15 +223,13 @@ class _DetailDailyTaskState extends State<DetailDailyTask> {
                                 });
 
                                 setState(() => isLoading = false);
-                                Navigator.pop(
-                                  context,
-                                  true,
-                                ); 
+                                Navigator.pop(context, true);
                               } catch (e) {
                                 setState(() => isLoading = false);
                                 showCustomSnackBar(
                                   context: context,
-                                  message: 'Update daily task as done is failed',
+                                  message:
+                                      'Update daily task as done is failed',
                                 );
                               }
                             },

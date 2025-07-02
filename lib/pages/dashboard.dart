@@ -34,7 +34,7 @@ class _TaskManagementState extends State<TaskManagement> {
 
   Future<void> loadTasks() async {
     try {
-      final allTasks = await TaskAPI.getAllTasks(); 
+      final allTasks = await TaskAPI.getAllTasks();
       setState(() {
         priorityTasks =
             allTasks
@@ -119,9 +119,19 @@ class _TaskManagementState extends State<TaskManagement> {
             ),
 
             SizedBox(height: 32),
-            TaskSection(tasks: priorityTasks, category: 'Priority', userId: userid),
+            TaskSection(
+              tasks: priorityTasks,
+              category: 'Priority',
+              userId: userid,
+              onTaskChanged: loadTasks,
+            ),
             const SizedBox(height: 15),
-            TaskSection(tasks: dailyTasks, category: 'Daily', userId: userid),
+            TaskSection(
+              tasks: dailyTasks,
+              category: 'Daily',
+              userId: userid,
+              onTaskChanged: loadTasks,
+            ),
           ],
         ),
       ),

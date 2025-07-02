@@ -5,6 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:to_do_list_app/components/my_bottom_navbar.dart';
+import 'package:to_do_list_app/screens/add_task.dart';
 import 'package:to_do_list_app/screens/calendar_daily.dart';
 import 'package:to_do_list_app/screens/calendar_priority.dart';
 import 'package:to_do_list_app/services/task.dart';
@@ -166,7 +167,16 @@ class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
           Padding(
             padding: const EdgeInsets.only(right: 16, top: 16),
             child: InkWell(
-              onTap: () {},
+              onTap: () async {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AddTask()),
+                );
+
+                if (result == true) {
+                  loadTasks();
+                }
+              },
               child: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
