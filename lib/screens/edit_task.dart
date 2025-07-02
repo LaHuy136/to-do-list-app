@@ -290,7 +290,7 @@ class _EditTaskState extends State<EditTask> {
                             showEditTodoModal(todo);
                           },
                           child: Container(
-                            padding: EdgeInsets.all(12),
+                            padding: EdgeInsets.all(8),
                             decoration: BoxDecoration(
                               border: Border.all(
                                 color: AppColors.disabledTertiary,

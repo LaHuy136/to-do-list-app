@@ -37,7 +37,7 @@ class _MyBottomNavbarState extends State<MyBottomNavbar> {
           buildNavItem(
             context,
             svgPath: 'assets/icons/profile.svg',
-            route: '/login',
+            route: '/profile',
             currentRoute: currentRoute,
           ),
         ],
