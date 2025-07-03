@@ -3,11 +3,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:to_do_list_app/components/my_bottom_navbar.dart';
-import 'package:to_do_list_app/screens/add_task.dart';
-import 'package:to_do_list_app/screens/calendar_daily.dart';
-import 'package:to_do_list_app/screens/calendar_priority.dart';
+import 'package:to_do_list_app/helpers/general_helper.dart';
+import 'package:to_do_list_app/screens/tasks/add_task.dart';
+import 'package:to_do_list_app/screens/calendars/calendar_daily.dart';
+import 'package:to_do_list_app/screens/calendars/calendar_priority.dart';
+import 'package:to_do_list_app/services/auth.dart';
 import 'package:to_do_list_app/services/task.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
 
@@ -27,7 +28,7 @@ class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
 
   List<Map<String, dynamic>> priorityTasks = [];
   List<Map<String, dynamic>> dailyTasks = [];
-  int userid = 0;
+  int userId = 0;
 
   @override
   void initState() {
@@ -53,12 +54,6 @@ class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
     _tabController.dispose();
     scrollController.dispose();
     super.dispose();
-  }
-
-  List<DateTime> getDaysInMonth(DateTime date) {
-    final first = DateTime(date.year, date.month, 1);
-    final daysInMonth = DateTime(date.year, date.month + 1, 0).day;
-    return List.generate(daysInMonth, (i) => first.add(Duration(days: i)));
   }
 
   void handleDatePicker() async {
@@ -122,10 +117,12 @@ class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
   }
 
   Future<void> loadUserData() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      userid = prefs.getInt('id') ?? 0;
-    });
+    final user = await AuthAPI.getCurrentUser();
+    if (user != null) {
+      setState(() {
+        userId = user['id'] ?? 0;
+      });
+    }
   }
 
   @override
@@ -320,13 +317,13 @@ class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
                 CalendarPriority(
                   priotyTasks: priorityTasks,
                   category: 'Priority',
-                  userId: userid,
+                  userId: userId,
                   selectedDate: selectedDate,
                 ),
                 CalendarDaily(
                   dailyTasks: dailyTasks,
                   category: 'Daily',
-                  userId: userid,
+                  userId: userId,
                   selectedDate: selectedDate,
                 ),
               ],

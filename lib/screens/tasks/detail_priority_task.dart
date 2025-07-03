@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:to_do_list_app/components/my_custom_snackbar.dart';
 import 'package:to_do_list_app/components/my_elevated_button.dart';
+import 'package:to_do_list_app/helpers/general_helper.dart';
 import 'package:to_do_list_app/services/task.dart';
 import 'package:to_do_list_app/services/todo.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
@@ -19,35 +20,10 @@ class DetailPriorityTask extends StatefulWidget {
 class _DetailPriorityTaskState extends State<DetailPriorityTask> {
   List<dynamic> todos = [];
 
-  double progress(List todos) {
-    if (todos.isEmpty) return 0.0;
-    final completed = todos.where((t) => t['is_done'] == true).length;
-    return completed / todos.length;
-  }
-
-  Map<String, dynamic> calculateTimeDiff(DateTime start, DateTime end) {
-    if (start.year == end.year &&
-        start.month == end.month &&
-        start.day == end.day) {
-      final duration = end.difference(start);
-      return {
-        'type': 'same-day',
-        'hours': duration.inHours,
-        'minutes': duration.inMinutes % 60,
-      };
-    } else {
-      int months = (end.year - start.year) * 12 + (end.month - start.month);
-      int days = end.difference(start).inDays % 30; // gần đúng
-      int hours = end.difference(start).inHours % 24;
-
-      return {'type': 'range', 'months': months, 'days': days, 'hours': hours};
-    }
-  }
-
   Future<void> fetchTodos() async {
     try {
       todos = await TodoAPI.getTodosByTask(widget.taskId);
-      setState(() {}); 
+      setState(() {});
     } catch (e) {
       print('Lỗi khi tải todos: $e');
       showCustomSnackBar(context: context, message: 'Error loading list todo');
@@ -347,7 +323,8 @@ class _DetailPriorityTaskState extends State<DetailPriorityTask> {
                                               } catch (e) {
                                                 showCustomSnackBar(
                                                   context: context,
-                                                  message: 'To do update failed: $e',
+                                                  message:
+                                                      'To do update failed: $e',
                                                   type: SnackBarType.error,
                                                 );
                                               }

@@ -3,9 +3,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:to_do_list_app/components/my_bottom_navbar.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
-import 'package:to_do_list_app/screens/task_section.dart';
+import 'package:to_do_list_app/screens/tasks/task_section.dart';
+import 'package:to_do_list_app/services/auth.dart';
 import 'package:to_do_list_app/services/task.dart';
 
 import 'package:to_do_list_app/theme/app_colors.dart';
@@ -18,7 +18,7 @@ class TaskManagement extends StatefulWidget {
 }
 
 class _TaskManagementState extends State<TaskManagement> {
-  int userid = 0;
+  int userId = 0;
   String username = '';
   String formattedDate = '';
   List<Map<String, dynamic>> priorityTasks = [];
@@ -53,11 +53,13 @@ class _TaskManagementState extends State<TaskManagement> {
   }
 
   Future<void> loadUserData() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      username = prefs.getString('username') ?? '';
-      userid = prefs.getInt('id') ?? 0;
-    });
+    final user = await AuthAPI.getCurrentUser();
+    if (user != null) {
+      setState(() {
+        userId = user['id'] ?? 0;
+        username = user['username'] ?? '';
+      });
+    }
   }
 
   @override
@@ -67,14 +69,14 @@ class _TaskManagementState extends State<TaskManagement> {
       appBar: AppBar(
         backgroundColor: AppColors.defaultText,
         elevation: 0,
-        leadingWidth: 160,
+        leadingWidth: 180,
         leading: Padding(
           padding: const EdgeInsets.only(left: 16, top: 16),
           child: Text(
             formattedDate,
             style: TextStyle(
               fontFamily: 'Poppins',
-              fontSize: 12,
+              fontSize: 14,
               fontWeight: FontWeight.w400,
             ),
           ),
@@ -122,14 +124,14 @@ class _TaskManagementState extends State<TaskManagement> {
             TaskSection(
               tasks: priorityTasks,
               category: 'Priority',
-              userId: userid,
+              userId: userId,
               onTaskChanged: loadTasks,
             ),
             const SizedBox(height: 15),
             TaskSection(
               tasks: dailyTasks,
               category: 'Daily',
-              userId: userid,
+              userId: userId,
               onTaskChanged: loadTasks,
             ),
           ],
