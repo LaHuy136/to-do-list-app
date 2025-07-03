@@ -5,12 +5,14 @@ class MyElevatedButton extends StatefulWidget {
   final void Function()? onPressed;
   final String textButton;
   final bool isLoading;
+  final bool isCancel;
 
   const MyElevatedButton({
     super.key,
     required this.onPressed,
     required this.textButton,
     this.isLoading = false,
+    this.isCancel = false,
   });
 
   @override
@@ -25,7 +27,8 @@ class _MyElevatedButtonState extends State<MyElevatedButton> {
       child: ElevatedButton(
         onPressed: widget.isLoading ? null : widget.onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
+          backgroundColor:
+              widget.isCancel ? Colors.transparent : AppColors.primary,
           padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
@@ -43,9 +46,9 @@ class _MyElevatedButtonState extends State<MyElevatedButton> {
                 )
                 : Text(
                   widget.textButton,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: AppColors.defaultText,
+                    color: widget.isCancel ? null : AppColors.defaultText,
                     fontFamily: 'Poppins',
                     fontWeight: FontWeight.w400,
                   ),

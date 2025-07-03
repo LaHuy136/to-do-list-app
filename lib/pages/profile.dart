@@ -1,11 +1,17 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously
+
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:to_do_list_app/components/my_bottom_navbar.dart';
+import 'package:to_do_list_app/screens/profile/location.dart';
 import 'package:to_do_list_app/screens/profile/my_profile.dart';
+import 'package:to_do_list_app/screens/profile/settings.dart';
 import 'package:to_do_list_app/services/auth.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
+import 'package:to_do_list_app/widget/custom_dialog.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -17,6 +23,9 @@ class Profile extends StatefulWidget {
 class _ProfileState extends State<Profile> {
   String userName = '';
   String profession = '';
+  File? avatar;
+  String? selectedAddress;
+
   @override
   void initState() {
     super.initState();
@@ -25,6 +34,12 @@ class _ProfileState extends State<Profile> {
 
   Future<void> loadUserData() async {
     final user = await AuthAPI.getCurrentUser();
+    final prefs = await SharedPreferences.getInstance();
+    final savedPath = prefs.getString('avatar_path');
+
+    if (savedPath != null && File(savedPath).existsSync()) {
+      avatar = File(savedPath);
+    }
     if (user != null) {
       setState(() {
         userName = user['username'] ?? '';
@@ -32,6 +47,8 @@ class _ProfileState extends State<Profile> {
       });
     }
   }
+
+  bool rememberMe = true;
 
   @override
   Widget build(BuildContext context) {
@@ -80,15 +97,62 @@ class _ProfileState extends State<Profile> {
 
                     // Location
                     SizedBox(height: 30),
-                    itemProfile('assets/icons/location.svg', 'Location', () {}),
+                    itemProfile(
+                      'assets/icons/location.svg',
+                      'Location',
+                      () async {
+                        final selectedAddress = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const Location(),
+                          ),
+                        );
+
+                        if (selectedAddress != null) {
+                          setState(() {
+                            this.selectedAddress = selectedAddress;
+                          });
+                        }
+                      },
+                    ),
 
                     SizedBox(height: 30),
                     // Settings
-                    itemProfile('assets/icons/settings.svg', 'Settings', () {}),
+                    itemProfile(
+                      'assets/icons/settings.svg',
+                      'Settings',
+                      () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const Settings(),
+                        ),
+                      ),
+                    ),
 
                     SizedBox(height: 30),
                     // Logout
-                    itemProfile('assets/icons/log-out.svg', 'Logout', () {}),
+                    itemProfile('assets/icons/log-out.svg', 'Logout', () async {
+                      await showDialog(
+                        context: context,
+                        builder:
+                            (_) => CustomDialogContent(
+                              title: 'Logout of Taskwan?',
+                              buttonText: 'Logout',
+                              onPressed: () async {
+                                final prefs =
+                                    await SharedPreferences.getInstance();
+                                if (!rememberMe) {
+                                  await prefs.remove('token');
+                                }
+                                Navigator.pushReplacementNamed(
+                                  context,
+                                  '/login',
+                                );
+                              },
+                              onRememberMeChanged: (val) => rememberMe = val,
+                            ),
+                      );
+                    }),
                   ],
                 ),
               ),
@@ -160,51 +224,60 @@ class _ProfileState extends State<Profile> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        Row(
-                          children: [
-                            SvgPicture.asset(
-                              'assets/icons/location.svg',
-                              width: 24,
-                              height: 24,
-                              color: AppColors.primary,
-                            ),
-                            SizedBox(width: 6),
-                            Text(
-                              'Location',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontSize: 12,
-                                fontWeight: FontWeight.w400,
+                        Expanded(
+                          child: Row(
+                            children: [
+                              SvgPicture.asset(
+                                'assets/icons/location.svg',
+                                width: 24,
+                                height: 24,
+                                color: AppColors.primary,
                               ),
-                            ),
-                          ],
+                              SizedBox(width: 6),
+                              Expanded(
+                                child: Text(
+                                  selectedAddress ?? 'Location',
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                  maxLines: 3,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
 
-                        SizedBox(width: 32),
+                        SizedBox(width: 16),
                         Container(
                           width: 2,
                           height: 20,
                           color: AppColors.unfocusedIcon,
                         ),
-                        SizedBox(width: 2),
-                        Row(
-                          children: [
-                            SvgPicture.asset(
-                              'assets/icons/location.svg',
-                              width: 24,
-                              height: 24,
-                              color: AppColors.primary,
-                            ),
-                            SizedBox(width: 6),
-                            Text(
-                              'Task Completed',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontSize: 12,
-                                fontWeight: FontWeight.w400,
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: Row(
+                            children: [
+                              SvgPicture.asset(
+                                'assets/icons/complete.svg',
+                                width: 24,
+                                height: 24,
+                                color: AppColors.primary,
                               ),
-                            ),
-                          ],
+                              SizedBox(width: 6),
+                              Expanded(
+                                child: Text(
+                                  'Task Completed',
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -223,7 +296,10 @@ class _ProfileState extends State<Profile> {
               backgroundColor: Colors.white,
               child: CircleAvatar(
                 radius: 45,
-                backgroundImage: AssetImage('assets/images/verify-account.png'),
+                backgroundImage:
+                    avatar != null
+                        ? FileImage(avatar!) as ImageProvider
+                        : AssetImage('assets/images/verify-account1.png'),
               ),
             ),
           ),
