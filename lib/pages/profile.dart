@@ -3,6 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:to_do_list_app/components/my_bottom_navbar.dart';
+import 'package:to_do_list_app/screens/profile/my_profile.dart';
+import 'package:to_do_list_app/services/auth.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
 
 class Profile extends StatefulWidget {
@@ -13,32 +15,28 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
+  String userName = '';
+  String profession = '';
+  @override
+  void initState() {
+    super.initState();
+    loadUserData();
+  }
+
+  Future<void> loadUserData() async {
+    final user = await AuthAPI.getCurrentUser();
+    if (user != null) {
+      setState(() {
+        userName = user['username'] ?? '';
+        profession = user['profession'] ?? '';
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // extendBodyBehindAppBar: true,
       backgroundColor: AppColors.primary,
-      // appBar: AppBar(backgroundColor: AppColors.primary),
-      // appBar: PreferredSize(
-      //   preferredSize: Size.fromHeight(100),
-      //   child: AppBar(
-      //     elevation: 0,
-      //     leadingWidth: 160,
-      //     leading: Padding(
-      //       padding: const EdgeInsets.all(16),
-      //       child: Text(
-      //         'Profile',
-      //         style: TextStyle(
-      //           fontFamily: 'Poppins',
-      //           color: AppColors.defaultText,
-      //           fontSize: 16,
-      //           fontWeight: FontWeight.w600,
-      //         ),
-      //       ),
-      //     ),
-      //     backgroundColor: AppColors.primary,
-      //   ),
-      // ),
       body: Stack(
         children: [
           Positioned.fill(
@@ -60,7 +58,16 @@ class _ProfileState extends State<Profile> {
                     itemProfile(
                       'assets/icons/profile.svg',
                       'My Profile',
-                      () {},
+                      () async {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => MyProfile()),
+                        );
+
+                        if (result == true) {
+                          loadUserData();
+                        }
+                      },
                     ),
 
                     // Statistics
@@ -126,7 +133,7 @@ class _ProfileState extends State<Profile> {
                 children: [
                   // User name
                   Text(
-                    'User name',
+                    userName,
                     style: TextStyle(
                       fontSize: 16,
                       fontFamily: 'Poppins',
@@ -138,7 +145,7 @@ class _ProfileState extends State<Profile> {
                   SizedBox(height: 10),
                   // Profession
                   Text(
-                    'Profession',
+                    profession,
                     style: TextStyle(
                       fontSize: 14,
                       fontFamily: 'Poppins',

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:to_do_list_app/components/my_custom_snackbar.dart';
 import 'package:to_do_list_app/components/my_elevated_button.dart';
+import 'package:to_do_list_app/helpers/general_helper.dart';
 import 'package:to_do_list_app/services/task.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
 
@@ -16,31 +17,6 @@ class DetailDailyTask extends StatefulWidget {
 }
 
 class _DetailDailyTaskState extends State<DetailDailyTask> {
-  double progress(List todos) {
-    if (todos.isEmpty) return 0.0;
-    final completed = todos.where((t) => t['is_done'] == true).length;
-    return completed / todos.length;
-  }
-
-  Map<String, dynamic> calculateTimeDiff(DateTime start, DateTime end) {
-    if (start.year == end.year &&
-        start.month == end.month &&
-        start.day == end.day) {
-      final duration = end.difference(start);
-      return {
-        'type': 'same-day',
-        'hours': duration.inHours,
-        'minutes': duration.inMinutes % 60,
-      };
-    } else {
-      int months = (end.year - start.year) * 12 + (end.month - start.month);
-      int days = end.difference(start).inDays % 30; // gần đúng
-      int hours = end.difference(start).inHours % 24;
-
-      return {'type': 'range', 'months': months, 'days': days, 'hours': hours};
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     bool isLoading = false;

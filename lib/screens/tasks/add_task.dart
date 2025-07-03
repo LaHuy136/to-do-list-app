@@ -3,9 +3,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:to_do_list_app/components/my_custom_snackbar.dart';
 import 'package:to_do_list_app/components/my_elevated_button.dart';
+import 'package:to_do_list_app/services/auth.dart';
 import 'package:to_do_list_app/services/task.dart';
 import 'package:to_do_list_app/services/todo.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
@@ -133,10 +133,12 @@ class _AddTaskState extends State<AddTask> {
   }
 
   Future<void> loadUserData() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      userId = prefs.getInt('id') ?? 0;
-    });
+    final user = await AuthAPI.getCurrentUser();
+    if (user != null) {
+      setState(() {
+        userId = user['id'] ?? 0;
+      });
+    }
   }
 
   @override

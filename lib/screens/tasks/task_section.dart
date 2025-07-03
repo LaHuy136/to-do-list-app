@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:to_do_list_app/screens/detail_daily_task.dart';
-import 'package:to_do_list_app/screens/detail_priority_task.dart';
+import 'package:to_do_list_app/helpers/general_helper.dart';
+import 'package:to_do_list_app/screens/tasks/detail_daily_task.dart';
+import 'package:to_do_list_app/screens/tasks/detail_priority_task.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
 
 class TaskSection extends StatefulWidget {
@@ -22,18 +23,6 @@ class TaskSection extends StatefulWidget {
 }
 
 class _TaskSectionState extends State<TaskSection> {
-  int daysLeft(String start, String end) {
-    final startDate = DateTime.parse(start);
-    final endDate = DateTime.parse(end);
-    return endDate.difference(startDate).inDays;
-  }
-
-  double progress(List todos) {
-    if (todos.isEmpty) return 0.0;
-    final completed = todos.where((t) => t['is_done'] == true).length;
-    return completed / todos.length;
-  }
-
   @override
   Widget build(BuildContext context) {
     final filteredTasks =
@@ -94,8 +83,7 @@ class _TaskSectionState extends State<TaskSection> {
                           );
 
                           if (result == true) {
-                            widget
-                                .onTaskChanged(); 
+                            widget.onTaskChanged();
                           }
                         },
                         child: Container(

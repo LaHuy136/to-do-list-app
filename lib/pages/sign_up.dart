@@ -5,7 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:to_do_list_app/components/my_custom_snackbar.dart';
 import 'package:to_do_list_app/components/my_elevated_button.dart';
 import 'package:to_do_list_app/components/my_text_form_field.dart';
-import 'package:to_do_list_app/screens/verification_code.dart';
+import 'package:to_do_list_app/screens/auth/verification_code.dart';
 import 'package:to_do_list_app/services/auth.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
 

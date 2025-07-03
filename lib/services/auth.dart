@@ -66,13 +66,64 @@ class AuthAPI {
       // Lưu vào SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('token', data['token']);
-      await prefs.setInt('id', data['user']['id']);
-      await prefs.setString('username', data['user']['username']);
-      await prefs.setString('email', data['user']['email']);
-
       return true;
     } else {
       throw Exception(jsonDecode(response.body)['message'] ?? 'Login failed');
+    }
+  }
+
+  static Future<Map<String, dynamic>?> getCurrentUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    if (token == null) return null;
+
+    final response = await http.get(
+      Uri.parse('$baseUrl/me'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['user'];
+    } else {
+      print('Failed to load user: ${response.body}');
+      return null;
+    }
+  }
+
+  static Future<bool> updateUser({
+    required String email,
+    required String username,
+    required String profession,
+    required String dateOfBirth,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    final url = Uri.parse('$baseUrl/update');
+
+    final response = await http.put(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        'email': email,
+        'username': username,
+        'profession': profession,
+        'dateofbirth': dateOfBirth,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      print('Update failed: ${response.body}');
+      return false;
     }
   }
 
