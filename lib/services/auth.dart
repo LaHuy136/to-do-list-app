@@ -91,6 +91,7 @@ class AuthAPI {
       return data['user'];
     } else {
       print('Failed to load user: ${response.body}');
+      await prefs.remove('token');
       return null;
     }
   }

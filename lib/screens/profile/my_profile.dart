@@ -1,8 +1,13 @@
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:to_do_list_app/components/my_custom_snackbar.dart';
 import 'package:to_do_list_app/components/my_elevated_button.dart';
 import 'package:to_do_list_app/services/auth.dart';
@@ -21,6 +26,8 @@ class _MyProfileState extends State<MyProfile> {
   final TextEditingController dobController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   DateTime? formattedDob;
+  File? avatar;
+
   @override
   void initState() {
     super.initState();
@@ -29,6 +36,13 @@ class _MyProfileState extends State<MyProfile> {
 
   Future<void> loadUserData() async {
     final user = await AuthAPI.getCurrentUser();
+    final prefs = await SharedPreferences.getInstance();
+    final savedPath = prefs.getString('avatar_path');
+
+    if (savedPath != null && File(savedPath).existsSync()) {
+      avatar = File(savedPath);
+    }
+
     if (user != null) {
       setState(() {
         nameController.text = user['username'] ?? '';
@@ -71,6 +85,29 @@ class _MyProfileState extends State<MyProfile> {
     }
   }
 
+  Future<void> pickAndSaveImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      final appDir = await getApplicationDocumentsDirectory();
+      
+      final fileName = 'avatar_${DateTime.now().millisecondsSinceEpoch}.png';
+      final savedImage = await File(
+        pickedFile.path,
+      ).copy('${appDir.path}/$fileName');
+
+
+      imageCache.clear();
+      imageCache.clearLiveImages();
+
+      setState(() {
+        avatar = savedImage;
+      });
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('avatar_path', savedImage.path);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -94,7 +131,7 @@ class _MyProfileState extends State<MyProfile> {
           centerTitle: true,
           leadingWidth: 55,
           leading: InkWell(
-            onTap: () => Navigator.pop(context),
+            onTap: () => Navigator.pop(context, true),
             child: Container(
               margin: EdgeInsets.only(left: 8, top: 8),
               decoration: BoxDecoration(
@@ -135,18 +172,25 @@ class _MyProfileState extends State<MyProfile> {
                         backgroundColor: Colors.white,
                         child: CircleAvatar(
                           radius: 45,
-                          backgroundImage: AssetImage(
-                            'assets/images/verify-account.png',
-                          ),
+                          key: ValueKey(avatar?.path),
+                          backgroundImage:
+                              avatar != null
+                                  ? FileImage(avatar!) as ImageProvider
+                                  : AssetImage(
+                                    'assets/images/verify-account1.png',
+                                  ),
                         ),
                       ),
-                      Container(
-                        margin: EdgeInsets.only(top: 60),
-                        child: SvgPicture.asset(
-                          'assets/icons/edit.svg',
-                          width: 24,
-                          height: 24,
-                          color: AppColors.primary,
+                      GestureDetector(
+                        onTap: pickAndSaveImage,
+                        child: Container(
+                          margin: EdgeInsets.only(top: 60),
+                          child: SvgPicture.asset(
+                            'assets/icons/edit.svg',
+                            width: 24,
+                            height: 24,
+                            color: AppColors.primary,
+                          ),
                         ),
                       ),
                     ],
@@ -190,7 +234,7 @@ class _MyProfileState extends State<MyProfile> {
                     if (success) {
                       showCustomSnackBar(
                         context: context,
-                        message: 'Profile updated successfully',
+                        message: 'New profile has been successfully updated',
                       );
                       Navigator.pop(context, true);
                     } else {
