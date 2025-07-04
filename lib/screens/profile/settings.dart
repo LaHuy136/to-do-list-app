@@ -2,10 +2,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:to_do_list_app/screens/profile/settings/help.dart';
+import 'package:to_do_list_app/screens/profile/settings/security.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
 
 class Settings extends StatefulWidget {
-  const Settings({super.key});
+  final int userId;
+  final String email;
+  const Settings({super.key, required this.email, required this.userId});
 
   @override
   State<Settings> createState() => _SettingsState();
@@ -65,19 +69,45 @@ class _SettingsState extends State<Settings> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Notification
-                itemSettings('assets/icons/notifications.svg', 'Notification', () {}),
+                itemSettings(
+                  'assets/icons/notifications.svg',
+                  'Notification',
+                  () {},
+                ),
 
                 // Security
                 SizedBox(height: 30),
-                itemSettings('assets/icons/locked.svg', 'Security', () {}),
+                itemSettings(
+                  'assets/icons/locked.svg',
+                  'Security',
+                  () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Security(email: widget.email),
+                    ),
+                  ),
+                ),
 
                 // Help
                 SizedBox(height: 30),
-                itemSettings('assets/icons/support.svg', 'Help', () {}),
+                itemSettings(
+                  'assets/icons/support.svg',
+                  'Help',
+                  () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Help(userId: widget.userId),
+                    ),
+                  ),
+                ),
 
                 // Update System
                 SizedBox(height: 30),
-                itemSettings('assets/icons/refresh.svg', 'Update System', () {}),
+                itemSettings(
+                  'assets/icons/refresh.svg',
+                  'Update System',
+                  () {},
+                ),
 
                 // About
                 SizedBox(height: 30),
@@ -85,7 +115,11 @@ class _SettingsState extends State<Settings> {
 
                 // Invite a friend
                 SizedBox(height: 30),
-                itemSettings('assets/icons/invite-a-friend.svg', 'Invite a friend', () {}),
+                itemSettings(
+                  'assets/icons/invite-a-friend.svg',
+                  'Invite a friend',
+                  () {},
+                ),
               ],
             ),
           ),

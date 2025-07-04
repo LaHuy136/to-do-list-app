@@ -5,8 +5,8 @@ class MyTextFormField extends StatefulWidget {
   final TextEditingController controller;
   final String? Function(String?)? validator;
   final String hintText;
-  final Widget prefixIcon;
   final Widget? suffixIcon;
+  final IconData icon;
   final bool? enable;
   final bool isPassword;
 
@@ -17,11 +17,11 @@ class MyTextFormField extends StatefulWidget {
     super.key,
     required this.controller,
     required this.hintText,
-    required this.prefixIcon,
     this.validator,
     this.isPassword = false,
     this.enable = true,
     this.suffixIcon,
+    required this.icon,
     // this.focusNode,
     // this.textInputAction,
     // this.onFieldSubmitted,
@@ -53,7 +53,16 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
           minHeight: 55,
           minWidth: 55,
         ),
-        prefixIcon: widget.prefixIcon,
+        prefixIcon: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(8),
+              bottomLeft: Radius.circular(8),
+            ),
+            color: AppColors.primary,
+          ),
+          child: Icon(widget.icon, color: AppColors.defaultText),
+        ),
         suffixIcon:
             widget.isPassword
                 ? IconButton(

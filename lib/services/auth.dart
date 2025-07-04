@@ -149,16 +149,41 @@ class AuthAPI {
     return res.statusCode == 200;
   }
 
-  static Future<bool> updatePassword({
+  static Future<bool> resetPassword({
     required String email,
     required String newPassword,
   }) async {
-    final url = Uri.parse('$baseUrl/forgot-password');
+    final url = Uri.parse('$baseUrl/reset-password');
 
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'email': email, 'newPassword': newPassword}),
+    );
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      final data = jsonDecode(response.body);
+      throw Exception(data['message'] ?? 'Failed to reset password');
+    }
+  }
+
+  static Future<bool> updatePassword({
+    required String email,
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    final url = Uri.parse('$baseUrl/update-password');
+
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'email': email,
+        'currentPassword': currentPassword,
+        'newPassword': newPassword,
+      }),
     );
 
     if (response.statusCode == 200) {
