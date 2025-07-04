@@ -101,19 +101,7 @@ class _SignUpState extends State<SignUp> {
                   }
                   return null;
                 },
-                prefixIcon: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(8),
-                      bottomLeft: Radius.circular(8),
-                    ),
-                    color: AppColors.primary,
-                  ),
-                  child: Icon(
-                    Icons.person_rounded,
-                    color: AppColors.defaultText,
-                  ),
-                ),
+                icon: Icons.person_rounded,
               ),
 
               const SizedBox(height: 20),
@@ -133,19 +121,8 @@ class _SignUpState extends State<SignUp> {
                   }
                   return null;
                 },
-                prefixIcon: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(8),
-                      bottomLeft: Radius.circular(8),
-                    ),
-                    color: AppColors.primary,
-                  ),
-                  child: Icon(
-                    Icons.email_rounded,
-                    color: AppColors.defaultText,
-                  ),
-                ),
+
+                icon: Icons.email_rounded,
               ),
 
               const SizedBox(height: 20),
@@ -163,16 +140,7 @@ class _SignUpState extends State<SignUp> {
                   }
                   return null;
                 },
-                prefixIcon: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(8),
-                      bottomLeft: Radius.circular(8),
-                    ),
-                    color: AppColors.primary,
-                  ),
-                  child: Icon(Icons.lock_rounded, color: AppColors.defaultText),
-                ),
+                icon: Icons.lock_rounded,
               ),
 
               const SizedBox(height: 20),
@@ -190,16 +158,7 @@ class _SignUpState extends State<SignUp> {
                   }
                   return null;
                 },
-                prefixIcon: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(8),
-                      bottomLeft: Radius.circular(8),
-                    ),
-                    color: AppColors.primary,
-                  ),
-                  child: Icon(Icons.lock_rounded, color: AppColors.defaultText),
-                ),
+                icon: Icons.lock_rounded,
               ),
 
               const SizedBox(height: 25),

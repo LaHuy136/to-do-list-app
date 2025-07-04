@@ -92,19 +92,7 @@ class _LoginState extends State<Login> {
                   }
                   return null;
                 },
-                prefixIcon: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(8),
-                      bottomLeft: Radius.circular(8),
-                    ),
-                    color: AppColors.primary,
-                  ),
-                  child: Icon(
-                    Icons.email_rounded,
-                    color: AppColors.defaultText,
-                  ),
-                ),
+                icon: Icons.email_rounded,
               ),
 
               const SizedBox(height: 20),
@@ -122,16 +110,7 @@ class _LoginState extends State<Login> {
                   }
                   return null;
                 },
-                prefixIcon: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(8),
-                      bottomLeft: Radius.circular(8),
-                    ),
-                    color: AppColors.primary,
-                  ),
-                  child: Icon(Icons.lock_rounded, color: AppColors.defaultText),
-                ),
+                icon: Icons.lock_rounded,
               ),
 
               // Forgot Password?

@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use, use_build_context_synchronously
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously, avoid_print
 
 import 'dart:io';
 
@@ -11,6 +11,7 @@ import 'package:to_do_list_app/screens/profile/my_profile.dart';
 import 'package:to_do_list_app/screens/profile/settings.dart';
 import 'package:to_do_list_app/screens/profile/statistic.dart';
 import 'package:to_do_list_app/services/auth.dart';
+import 'package:to_do_list_app/services/task.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
 import 'package:to_do_list_app/widget/custom_dialog.dart';
 
@@ -25,9 +26,14 @@ class _ProfileState extends State<Profile> {
   int userId = 0;
   String userName = '';
   String profession = '';
+  String email = '';
   File? avatar;
   String? selectedAddress;
-
+  bool rememberMe = true;
+  bool isLoading = true;
+  List<double> monthlyCompletion = List.filled(12, 0);
+  int totalTasks = 0;
+  int completedTasks = 0;
   @override
   void initState() {
     super.initState();
@@ -45,13 +51,28 @@ class _ProfileState extends State<Profile> {
     if (user != null) {
       setState(() {
         userId = user['id'] ?? 0;
+        email = user['email'] ?? '';
         userName = user['username'] ?? '';
         profession = user['profession'] ?? '';
       });
+      loadStatistics(DateTime.now().year);
     }
   }
 
-  bool rememberMe = true;
+  void loadStatistics(int year) async {
+    try {
+      final result = await TaskAPI.fetchStatistics(userId, year);
+      setState(() {
+        monthlyCompletion = result['monthly'];
+        totalTasks = result['total'];
+        completedTasks = result['completed'];
+        isLoading = false;
+      });
+    } catch (e) {
+      print('Error loading statistics $e');
+      setState(() => isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -132,7 +153,9 @@ class _ProfileState extends State<Profile> {
                       () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const Settings(),
+                          builder:
+                              (context) =>
+                                  Settings(email: email, userId: userId),
                         ),
                       ),
                     ),
@@ -276,7 +299,7 @@ class _ProfileState extends State<Profile> {
                               SizedBox(width: 6),
                               Expanded(
                                 child: Text(
-                                  'Task Completed',
+                                  '$completedTasks Task Completed',
                                   style: TextStyle(
                                     fontFamily: 'Poppins',
                                     fontSize: 12,
