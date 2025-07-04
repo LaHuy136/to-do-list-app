@@ -38,6 +38,7 @@ class _EditTaskState extends State<EditTask> {
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController editingController = TextEditingController();
   bool isLoading = false;
+  bool isDone = false;
   int userId = 0;
   late DateTime dateStart;
   late DateTime dateEnd;
@@ -110,7 +111,7 @@ class _EditTaskState extends State<EditTask> {
       'category': widget.category,
       'date_start': DateFormat('yyyy-MM-dd').format(dateStart),
       'date_end': DateFormat('yyyy-MM-dd').format(dateEnd),
-      'is_done': widget.isDone,
+      'is_done': isDone,
     };
 
     setState(() => isLoading = true);
@@ -127,7 +128,7 @@ class _EditTaskState extends State<EditTask> {
   Future<void> fetchTodos() async {
     try {
       todos = await TodoAPI.getTodosByTask(widget.taskId);
-      setState(() {}); // Cập nhật lại UI
+      setState(() {});
     } catch (e) {
       print('Lỗi khi tải todos: $e');
       showCustomSnackBar(context: context, message: 'Error loading list todo');
@@ -258,7 +259,31 @@ class _EditTaskState extends State<EditTask> {
                   maxLines: 5,
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 12),
+
+                // Checkbox is_done
+                CheckboxListTile(
+                  contentPadding: EdgeInsets.zero,
+                  activeColor: AppColors.primary,
+                  title: Text(
+                    'Mark as done',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  value: isDone,
+                  onChanged: (value) {
+                    setState(() {
+                      isDone = value ?? false;
+                    });
+                  },
+                  controlAffinity: ListTileControlAffinity.leading,
+                ),
+
+                const SizedBox(height: 12),
                 if (widget.category == 'Priority') ...[
                   // To Do Item
                   Text(

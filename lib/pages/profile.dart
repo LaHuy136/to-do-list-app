@@ -9,6 +9,7 @@ import 'package:to_do_list_app/components/my_bottom_navbar.dart';
 import 'package:to_do_list_app/screens/profile/location.dart';
 import 'package:to_do_list_app/screens/profile/my_profile.dart';
 import 'package:to_do_list_app/screens/profile/settings.dart';
+import 'package:to_do_list_app/screens/profile/statistic.dart';
 import 'package:to_do_list_app/services/auth.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
 import 'package:to_do_list_app/widget/custom_dialog.dart';
@@ -21,6 +22,7 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
+  int userId = 0;
   String userName = '';
   String profession = '';
   File? avatar;
@@ -42,6 +44,7 @@ class _ProfileState extends State<Profile> {
     }
     if (user != null) {
       setState(() {
+        userId = user['id'] ?? 0;
         userName = user['username'] ?? '';
         profession = user['profession'] ?? '';
       });
@@ -92,7 +95,12 @@ class _ProfileState extends State<Profile> {
                     itemProfile(
                       'assets/icons/analytics.svg',
                       'Statistics',
-                      () {},
+                      () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Statistic(userId: userId),
+                        ),
+                      ),
                     ),
 
                     // Location

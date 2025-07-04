@@ -58,4 +58,32 @@ class TaskAPI {
     final res = await http.delete(Uri.parse('$baseUrl/$id'));
     if (res.statusCode != 200) throw Exception('Failed to delete task');
   }
+
+  static Future<Map<String, dynamic>> fetchStatistics(
+    int userId,
+    int year,
+  ) async {
+    final url = Uri.parse('$baseUrl/statistic?user_id=$userId&year=$year');
+
+    final response = await http.get(url);
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final List monthlyData = data['monthly'];
+
+      List<double> monthlyCompletion =
+          monthlyData.map<double>((item) {
+            final total = item['total'] ?? 0;
+            final completed = item['completed'] ?? 0;
+            return total > 0 ? completed / total : 0.0;
+          }).toList();
+
+      return {
+        'monthly': monthlyCompletion,
+        'total': data['totalTasks'] ?? 0,
+        'completed': data['completedTasks'] ?? 0,
+      };
+    } else {
+      throw Exception('Failed to load statistics');
+    }
+  }
 }
