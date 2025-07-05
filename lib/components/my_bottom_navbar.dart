@@ -16,32 +16,38 @@ class _MyBottomNavbarState extends State<MyBottomNavbar> {
   Widget build(BuildContext context) {
     final currentRoute = ModalRoute.of(context)?.settings.name;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      color: AppColors.defaultText,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          buildNavItem(
-            context,
-            svgPath: 'assets/icons/home.svg',
-            route: '/home',
-            currentRoute: currentRoute,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Divider(height: 1, color: AppColors.unfocusedDate),
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 24),
+          color: AppColors.defaultText,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              buildNavItem(
+                context,
+                svgPath: 'assets/icons/home.svg',
+                route: '/home',
+                currentRoute: currentRoute,
+              ),
+              buildNavItem(
+                context,
+                svgPath: 'assets/icons/calendar.svg',
+                route: '/calendar',
+                currentRoute: currentRoute,
+              ),
+              buildNavItem(
+                context,
+                svgPath: 'assets/icons/profile.svg',
+                route: '/profile',
+                currentRoute: currentRoute,
+              ),
+            ],
           ),
-          buildNavItem(
-            context,
-            svgPath: 'assets/icons/calendar.svg',
-            route: '/calendar',
-            currentRoute: currentRoute,
-          ),
-          buildNavItem(
-            context,
-            svgPath: 'assets/icons/profile.svg',
-            route: '/profile',
-            currentRoute: currentRoute,
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
