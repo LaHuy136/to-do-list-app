@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do_list_app/provider/auth.provider.dart';
-import 'package:to_do_list_app/pages/dashboard.dart';
 import 'package:to_do_list_app/screens/introduce.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
 
@@ -28,10 +27,7 @@ class _SplashScreenState extends State<SplashScreen> {
     await Future.delayed(const Duration(seconds: 1));
 
     if (auth.isLoggedIn) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const TaskManagement()),
-      );
+      Navigator.pushReplacementNamed(context, '/home');
     } else {
       Navigator.pushReplacement(
         context,

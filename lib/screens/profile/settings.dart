@@ -2,8 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:to_do_list_app/screens/profile/settings/help.dart';
-import 'package:to_do_list_app/screens/profile/settings/security.dart';
+import 'package:to_do_list_app/screens/profile/settings/settings_about.dart';
+import 'package:to_do_list_app/screens/profile/settings/settings_help.dart';
+import 'package:to_do_list_app/screens/profile/settings/settings_security.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
 
 class Settings extends StatefulWidget {
@@ -83,7 +84,8 @@ class _SettingsState extends State<Settings> {
                   () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => Security(email: widget.email),
+                      builder:
+                          (context) => SettingsSecurity(email: widget.email),
                     ),
                   ),
                 ),
@@ -96,7 +98,7 @@ class _SettingsState extends State<Settings> {
                   () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => Help(userId: widget.userId),
+                      builder: (context) => SettingsHelp(userId: widget.userId),
                     ),
                   ),
                 ),
@@ -111,7 +113,14 @@ class _SettingsState extends State<Settings> {
 
                 // About
                 SizedBox(height: 30),
-                itemSettings('assets/icons/about.svg', 'About', () {}),
+                itemSettings(
+                  'assets/icons/about.svg',
+                  'About',
+                  () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SettingsAbout()),
+                  ),
+                ),
 
                 // Invite a friend
                 SizedBox(height: 30),

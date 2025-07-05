@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:to_do_list_app/components/my_bottom_navbar.dart';
 import 'package:intl/intl.dart';
+import 'package:to_do_list_app/screens/notification.dart';
 import 'package:to_do_list_app/screens/tasks/task_section.dart';
 import 'package:to_do_list_app/services/auth.dart';
 import 'package:to_do_list_app/services/task.dart';
@@ -85,7 +86,13 @@ class _TaskManagementState extends State<TaskManagement> {
           Padding(
             padding: const EdgeInsets.only(right: 16),
             child: InkWell(
-              onTap: () {},
+              onTap:
+                  () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const NotificationScreen(),
+                    ),
+                  ),
               child: SvgPicture.asset(
                 'assets/icons/notification.svg',
                 width: 28,

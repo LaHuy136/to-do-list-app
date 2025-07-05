@@ -7,15 +7,15 @@ import 'package:to_do_list_app/components/my_text_form_field.dart';
 import 'package:to_do_list_app/services/auth.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
 
-class Security extends StatefulWidget {
+class SettingsSecurity extends StatefulWidget {
   final String email;
-  const Security({super.key, required this.email});
+  const SettingsSecurity({super.key, required this.email});
 
   @override
-  State<Security> createState() => _SecurityState();
+  State<SettingsSecurity> createState() => _SettingsSecurityState();
 }
 
-class _SecurityState extends State<Security> {
+class _SettingsSecurityState extends State<SettingsSecurity> {
   final formKey = GlobalKey<FormState>();
   bool isLoading = false;
   final TextEditingController currentPwController = TextEditingController();
