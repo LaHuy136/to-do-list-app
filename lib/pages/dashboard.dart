@@ -1,9 +1,13 @@
 // ignore_for_file: deprecated_member_use, avoid_print
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:to_do_list_app/components/my_bottom_navbar.dart';
 import 'package:intl/intl.dart';
+import 'package:to_do_list_app/provider/notification.provider.dart';
 import 'package:to_do_list_app/screens/notification.dart';
 import 'package:to_do_list_app/screens/tasks/task_section.dart';
 import 'package:to_do_list_app/services/auth.dart';
@@ -24,6 +28,7 @@ class _TaskManagementState extends State<TaskManagement> {
   String formattedDate = '';
   List<Map<String, dynamic>> priorityTasks = [];
   List<Map<String, dynamic>> dailyTasks = [];
+  bool hasNotification = false;
 
   @override
   void initState() {
@@ -31,6 +36,7 @@ class _TaskManagementState extends State<TaskManagement> {
     loadUserData();
     formattedDate = DateFormat('EEEE, MMM d yyyy').format(DateTime.now());
     loadTasks();
+    checkNotificationStatus();
   }
 
   Future<void> loadTasks() async {
@@ -63,6 +69,19 @@ class _TaskManagementState extends State<TaskManagement> {
     }
   }
 
+  Future<void> checkNotificationStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final stored = prefs.getStringList('notifications') ?? [];
+    final hasUnread = stored.any((e) {
+      final item = NotificationItem.fromJson(jsonDecode(e));
+      return !item.isRead;
+    });
+
+    setState(() {
+      hasNotification = hasUnread;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -86,18 +105,48 @@ class _TaskManagementState extends State<TaskManagement> {
           Padding(
             padding: const EdgeInsets.only(right: 16),
             child: InkWell(
-              onTap:
-                  () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const NotificationScreen(),
-                    ),
+              onTap: () async {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const NotificationScreen(),
                   ),
-              child: SvgPicture.asset(
-                'assets/icons/notification.svg',
-                width: 28,
-                height: 28,
-                color: AppColors.primary,
+                );
+                if (result == true) {
+                  setState(() {
+                    hasNotification = result;
+                  });
+                }
+                if (result == false || result == 'cleared') {
+                  setState(() {
+                    hasNotification = false;
+                  });
+                }
+              },
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  SvgPicture.asset(
+                    'assets/icons/notification.svg',
+                    width: 28,
+                    height: 28,
+                    color: AppColors.primary,
+                  ),
+
+                  if (hasNotification == true)
+                    Positioned(
+                      top: -4,
+                      right: -4,
+                      child: Container(
+                        width: 10,
+                        height: 10,
+                        decoration: BoxDecoration(
+                          color: AppColors.destructive,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
           ),

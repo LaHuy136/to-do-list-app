@@ -114,6 +114,7 @@ class _SettingsHelpState extends State<SettingsHelp> {
                         FocusScope.of(context).unfocus();
                         MyCustomDialog.show(
                           context: context,
+                          onPressed: () => Navigator.pop(context),
                           title: 'Success',
                           content: 'Message sent successfully',
                         );

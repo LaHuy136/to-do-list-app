@@ -3,6 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
 
 class Location extends StatefulWidget {
@@ -141,11 +142,19 @@ class _LocationState extends State<Location> {
                                   );
                               final place = placemarks.first;
 
+                              final address =
+                                  '${place.street}, ${place.locality}';
+
                               setState(() {
                                 currentLocation = latlng;
                                 currentAddress =
                                     '${place.street}, ${place.locality}';
                               });
+                              final prefs =
+                                  await SharedPreferences.getInstance();
+                              await prefs.setDouble('lat', latlng.latitude);
+                              await prefs.setDouble('lng', latlng.longitude);
+                              await prefs.setString('address', address);
                             },
                           ),
                           children: [

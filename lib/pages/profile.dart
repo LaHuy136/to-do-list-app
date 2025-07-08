@@ -38,6 +38,7 @@ class _ProfileState extends State<Profile> {
   void initState() {
     super.initState();
     loadUserData();
+    loadAddress();
   }
 
   Future<void> loadUserData() async {
@@ -71,6 +72,17 @@ class _ProfileState extends State<Profile> {
     } catch (e) {
       print('Error loading statistics $e');
       setState(() => isLoading = false);
+    }
+  }
+
+  Future<void> loadAddress() async {
+    final prefs = await SharedPreferences.getInstance();
+    final address = prefs.getString('address');
+
+    if (address != null && mounted) {
+      setState(() {
+        selectedAddress = address;
+      });
     }
   }
 
