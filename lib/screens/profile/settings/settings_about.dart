@@ -117,6 +117,7 @@ class _SettingsAboutState extends State<SettingsAbout> {
                     onTap:
                         () => MyCustomDialog.show(
                           context: context,
+                          onPressed: () => Navigator.pop(context),
                           title: 'Nofitication',
                           content: 'Thank you for using task-wan app',
                         ),

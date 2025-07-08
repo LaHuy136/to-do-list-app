@@ -3,6 +3,7 @@ plugins {
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+    id("com.google.gms.google-services") version "4.4.3"
 }
 
 android {
@@ -13,7 +14,14 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        isCoreLibraryDesugaringEnabled = true
     }
+
+    dependencies {
+        implementation("androidx.core:core-ktx:1.13.1")
+        coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4") 
+    }
+
 
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_11.toString()

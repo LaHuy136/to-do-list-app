@@ -8,6 +8,8 @@ class MyCustomDialog {
     required BuildContext context,
     required String title,
     required String content,
+    required void Function()? onPressed,
+    bool isTwoButton = false,
     String confirmText = 'OK',
     Color? titleColor,
     Color? buttonColor,
@@ -34,10 +36,24 @@ class MyCustomDialog {
               ),
             ),
             actions: [
+              isTwoButton
+                  ? TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text(
+                      'Cancel',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
+                      ),
+                    ),
+                  )
+                  : SizedBox.shrink(),
               TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
+                onPressed: onPressed,
                 child: Text(
                   confirmText,
                   style: TextStyle(

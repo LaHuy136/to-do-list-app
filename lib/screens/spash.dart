@@ -41,13 +41,26 @@ class _SplashScreenState extends State<SplashScreen> {
     return const Scaffold(
       backgroundColor: AppColors.defaultText,
       body: Center(
-        child: SizedBox(
-          width: 30,
-          height: 30,
-          child: CircularProgressIndicator(
-            strokeWidth: 1.5,
-            color: AppColors.primary,
-          ),
+        child: Column(
+          children: [
+            SizedBox(
+              width: 30,
+              height: 30,
+              child: CircularProgressIndicator(
+                strokeWidth: 1.5,
+                color: AppColors.primary,
+              ),
+            ),
+            SizedBox(height: 10),
+            Text('Loading...',
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
+                color: AppColors.defaultText,
+              ),
+            ),
+          ],
         ),
       ),
     );
