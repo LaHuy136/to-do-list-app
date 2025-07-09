@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:to_do_list_app/screens/profile/settings/settings_about.dart';
 import 'package:to_do_list_app/screens/profile/settings/settings_help.dart';
+import 'package:to_do_list_app/screens/profile/settings/settings_invite_a_friend.dart';
 import 'package:to_do_list_app/screens/profile/settings/settings_security.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
 
@@ -127,7 +128,10 @@ class _SettingsState extends State<Settings> {
                 itemSettings(
                   'assets/icons/invite-a-friend.svg',
                   'Invite a friend',
-                  () {},
+                  () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SettingsInviteAFriend()),
+                  ),
                 ),
               ],
             ),

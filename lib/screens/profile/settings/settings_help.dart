@@ -61,8 +61,8 @@ class _SettingsHelpState extends State<SettingsHelp> {
       ),
       body: ClipRRect(
         borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(32),
-          topRight: Radius.circular(32),
+          topLeft: Radius.circular(56),
+          topRight: Radius.circular(56),
         ),
         child: Container(
           height: double.infinity,
