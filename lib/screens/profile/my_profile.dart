@@ -90,12 +90,11 @@ class _MyProfileState extends State<MyProfile> {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       final appDir = await getApplicationDocumentsDirectory();
-      
+
       final fileName = 'avatar_${DateTime.now().millisecondsSinceEpoch}.png';
       final savedImage = await File(
         pickedFile.path,
       ).copy('${appDir.path}/$fileName');
-
 
       imageCache.clear();
       imageCache.clearLiveImages();
@@ -149,8 +148,8 @@ class _MyProfileState extends State<MyProfile> {
       ),
       body: ClipRRect(
         borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(32),
-          topRight: Radius.circular(32),
+          topLeft: Radius.circular(56),
+          topRight: Radius.circular(56),
         ),
         child: Container(
           height: double.infinity,

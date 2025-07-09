@@ -38,10 +38,12 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       backgroundColor: AppColors.defaultText,
       body: Center(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(
               width: 30,
@@ -52,12 +54,12 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
             ),
             SizedBox(height: 10),
-            Text('Loading...',
+            Text(
+              'Loading...',
               style: TextStyle(
                 fontFamily: 'Poppins',
                 fontWeight: FontWeight.w500,
-                fontSize: 14,
-                color: AppColors.defaultText,
+                fontSize: 12,
               ),
             ),
           ],
