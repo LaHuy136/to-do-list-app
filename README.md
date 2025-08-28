@@ -1,47 +1,45 @@
 # 📱 To-Do List Frontend (Flutter)
 
-This is the Flutter frontend of the To-Do List application. It connects to a RESTful backend (Node.js) to manage personal tasks.
+Đây là **ứng dụng Flutter** cho To-Do List.  
+Ứng dụng kết nối với **RESTful backend (Node.js)** để quản lý công việc cá nhân.
 
-## 🧰 Technologies
+---
+
+## 🧰 Công nghệ sử dụng
 
 - Flutter v3.29.2
 - Dart
-- `http` package for REST API communication
+- Gói `http` để giao tiếp với REST API
 
-## 🔧 Requirements
+---
 
-- Flutter SDK installed
-- Dart => 3x
-- Android/iOS device or emulator
+## 🔧 Yêu cầu
 
-## 🚀 Setup Instructions
+- Cài đặt **Flutter SDK**
+- Dart >= 3.x
+- Thiết bị Android/iOS hoặc emulator
 
-### 1. Clone the repository
+---
+
+## 🚀 Hướng dẫn cài đặt
+
+### 1. Tải dự án
 
 ```bash
-https://github.com/LaHuy136/to-do-list-app.git
+git clone https://github.com/LaHuy136/to-do-list-app.git
 ```
 
-### 2. Install dependencies
+### 2. Cài đặt dependencies
 
 ```bash
 flutter pub get
 ```
 
-### 3. Configure API URL
+### 3. Cấu hình địa chỉ API
 
 ```dart
-const String apiUrl = "http://<BACKEND_IP>:3000";
+const String baseUrl = "http://<BACKEND_IP>:3000";
 ```
-
-#### ⚠️ Note:
-
-##### Do NOT use localhost when running on a physical device.
-
-##### Use your local network IP address (e.g. 192.168.1.10) to access the backend from Flutter.
-
-### 4. Run the application
 
 ```bash
-flutter run  
-```
+git clone https://github.com/LaHuy136/to-do-list-app.git
