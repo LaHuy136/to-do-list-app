@@ -40,6 +40,3 @@ flutter pub get
 ```dart
 const String baseUrl = "http://<BACKEND_IP>:3000";
 ```
-
-```bash
-git clone https://github.com/LaHuy136/to-do-list-app.git
