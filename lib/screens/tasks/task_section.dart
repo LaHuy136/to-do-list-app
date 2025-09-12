@@ -133,36 +133,47 @@ class _TaskSectionState extends State<TaskSection> {
                                 ),
                               ),
                               const SizedBox(height: 30),
-                              const Text(
-                                'Progress',
-                                style: TextStyle(
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 12,
+                              if (taskTodos.isEmpty)
+                                Text(
+                                  "No todos yet",
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontSize: 14,
+                                    color: AppColors.defaultText,
+                                  ),
+                                )
+                              else ...[
+                                const Text(
+                                  'Progress',
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 12,
+                                    color: AppColors.defaultText,
+                                  ),
+                                ),
+                                LinearProgressIndicator(
+                                  value: taskProgress,
+                                  backgroundColor: AppColors.bgprogessBar,
                                   color: AppColors.defaultText,
                                 ),
-                              ),
-                              LinearProgressIndicator(
-                                value: taskProgress,
-                                backgroundColor: AppColors.bgprogessBar,
-                                color: AppColors.defaultText,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const SizedBox.shrink(),
-                                  Text(
-                                    '${(taskProgress * 100).toInt()}%',
-                                    style: const TextStyle(
-                                      fontFamily: 'Poppins',
-                                      fontWeight: FontWeight.w400,
-                                      fontSize: 12,
-                                      color: AppColors.defaultText,
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const SizedBox.shrink(),
+                                    Text(
+                                      '${(taskProgress * 100).toInt()}%',
+                                      style: const TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontWeight: FontWeight.w400,
+                                        fontSize: 12,
+                                        color: AppColors.defaultText,
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
+                                  ],
+                                ),
+                              ],
                             ],
                           ),
                         ),
@@ -205,6 +216,10 @@ class _TaskSectionState extends State<TaskSection> {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(color: AppColors.disabledTertiary),
+                          color:
+                              (isExpired || taskCompleted || isCompleted)
+                                  ? AppColors.primary
+                                  : AppColors.defaultText,
                         ),
                         padding: const EdgeInsets.all(16),
                         child: Row(
@@ -218,7 +233,7 @@ class _TaskSectionState extends State<TaskSection> {
                                 fontWeight: FontWeight.w600,
                                 color:
                                     (isExpired || taskCompleted || isCompleted)
-                                        ? AppColors.primary
+                                        ? AppColors.defaultText
                                         : AppColors.bgprogessBar,
                               ),
                             ),
@@ -227,7 +242,7 @@ class _TaskSectionState extends State<TaskSection> {
                               groupValue:
                                   taskCompleted || isExpired || isCompleted,
                               onChanged: (_) {},
-                              activeColor: AppColors.primary,
+                              activeColor: AppColors.defaultText,
                             ),
                           ],
                         ),

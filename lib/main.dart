@@ -5,15 +5,15 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:to_do_list_app/pages/calendar.dart';
-import 'package:to_do_list_app/pages/login.dart';
+import 'package:to_do_list_app/views/login_screen.dart';
 import 'package:to_do_list_app/pages/profile.dart';
 import 'package:to_do_list_app/pages/reset_password.dart';
-import 'package:to_do_list_app/pages/sign_up.dart';
+import 'package:to_do_list_app/views/register_screen.dart';
 import 'package:to_do_list_app/pages/dashboard.dart';
-import 'package:to_do_list_app/provider/auth.provider.dart';
 import 'package:to_do_list_app/screens/introduce.dart';
 import 'package:provider/provider.dart';
-import 'package:to_do_list_app/screens/spash.dart';
+import 'package:to_do_list_app/views/spash_screen.dart';
+import 'package:to_do_list_app/viewmodels/auth_viewmodel.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -29,8 +29,10 @@ void main() async {
   final token = await FirebaseMessaging.instance.getToken();
 
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => AuthProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider<AuthViewModel>(create: (_) => AuthViewModel()),
+      ],
       child: MyApp(fcmToken: token),
     ),
   );
@@ -43,12 +45,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-
-    // Gửi FCM token sau khi load user
+    // Đợi sau khi widget tree đã build thì mới gọi provider
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await authProvider.loadUser();
-      await authProvider.sendTokenToBackend(fcmToken);
+      final authViewModel = context.read<AuthViewModel>();
+      await authViewModel.loadUser();
+      await authViewModel.sendTokenToBackend(fcmToken);
     });
 
     return MaterialApp(

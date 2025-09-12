@@ -18,6 +18,7 @@ class EditTask extends StatefulWidget {
   final String dateStart;
   final String dateEnd;
   final bool isDone;
+  final VoidCallback onTaskChanged;
   const EditTask({
     super.key,
     required this.taskId,
@@ -27,6 +28,7 @@ class EditTask extends StatefulWidget {
     required this.dateStart,
     required this.dateEnd,
     required this.isDone,
+    required this.onTaskChanged,
   });
 
   @override
@@ -51,6 +53,7 @@ class _EditTaskState extends State<EditTask> {
     dateEnd = DateTime.parse(widget.dateEnd);
     titleController.text = widget.title;
     descriptionController.text = widget.description;
+    isDone = widget.isDone;
     fetchTodos();
   }
 
@@ -344,6 +347,7 @@ class _EditTaskState extends State<EditTask> {
                                         ...todo,
                                         'is_done': value,
                                       });
+                                      widget.onTaskChanged();
                                       await fetchTodos();
                                     } catch (e) {
                                       showCustomSnackBar(
@@ -403,7 +407,7 @@ class _EditTaskState extends State<EditTask> {
         InkWell(
           onTap: onTap,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 16),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: AppColors.unfocusedIcon),

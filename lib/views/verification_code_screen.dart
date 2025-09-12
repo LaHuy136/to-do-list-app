@@ -4,11 +4,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:provider/provider.dart';
 import 'package:to_do_list_app/components/my_custom_snackbar.dart';
 import 'package:to_do_list_app/components/my_elevated_button.dart';
-import 'package:to_do_list_app/screens/auth/success_verification.dart';
-import 'package:to_do_list_app/services/auth.dart';
+import 'package:to_do_list_app/views/success_verification_screen.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
+import 'package:to_do_list_app/viewmodels/auth_viewmodel.dart';
 
 class VerificationCode extends StatefulWidget {
   final String email;
@@ -55,6 +56,7 @@ class _VerificationCodeState extends State<VerificationCode> {
 
   @override
   Widget build(BuildContext context) {
+    final authVM = Provider.of<AuthViewModel>(context);
     return Scaffold(
       backgroundColor: AppColors.defaultText,
       appBar: AppBar(
@@ -166,7 +168,7 @@ class _VerificationCodeState extends State<VerificationCode> {
                   onTap:
                       isResendAvailable
                           ? () async {
-                            final ok = await AuthAPI.resendCode(widget.email);
+                            final ok = await authVM.resendCode(widget.email);
                             if (ok) {
                               showCustomSnackBar(
                                 context: context,
@@ -200,7 +202,7 @@ class _VerificationCodeState extends State<VerificationCode> {
             // Button Confirm
             MyElevatedButton(
               onPressed: () async {
-                final success = await AuthAPI.verifyCode(
+                final success = await authVM.verifyCode(
                   widget.email,
                   currentCode,
                 );

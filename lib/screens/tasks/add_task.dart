@@ -124,7 +124,7 @@ class _AddTaskState extends State<AddTask> {
     } catch (e) {
       showCustomSnackBar(
         context: context,
-        message: 'Error: ${e.toString()}',
+        message: e.toString(),
         type: SnackBarType.error,
       );
     } finally {
@@ -205,7 +205,7 @@ class _AddTaskState extends State<AddTask> {
                         () => pickDate(true),
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 24),
                     Expanded(
                       child: buildDatePicker(
                         'End',
@@ -366,7 +366,7 @@ class _AddTaskState extends State<AddTask> {
         InkWell(
           onTap: onTap,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 16),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: AppColors.unfocusedIcon),

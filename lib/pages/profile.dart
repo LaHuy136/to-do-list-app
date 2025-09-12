@@ -46,6 +46,8 @@ class _ProfileState extends State<Profile> {
     final prefs = await SharedPreferences.getInstance();
     final savedPath = prefs.getString('avatar_path');
 
+    avatar = null;
+
     if (savedPath != null && File(savedPath).existsSync()) {
       avatar = File(savedPath);
     }
