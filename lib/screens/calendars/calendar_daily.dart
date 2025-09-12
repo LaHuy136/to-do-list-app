@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, avoid_print
 
 import 'package:flutter/material.dart';
 import 'package:to_do_list_app/components/my_custom_snackbar.dart';
@@ -25,6 +25,34 @@ class CalendarDaily extends StatefulWidget {
 }
 
 class _CalendarDailyState extends State<CalendarDaily> {
+  List<Map<String, dynamic>> priorityTasks = [];
+  List<Map<String, dynamic>> dailyTasks = [];
+  @override
+  void initState() {
+    super.initState();
+    loadTasks();
+  }
+
+  Future<void> loadTasks() async {
+    try {
+      final allTasks = await TaskAPI.getAllTasks();
+      setState(() {
+        priorityTasks =
+            allTasks
+                .where((t) => t['category'] == 'Priority')
+                .toList()
+                .cast<Map<String, dynamic>>();
+        dailyTasks =
+            allTasks
+                .where((t) => t['category'] == 'Daily')
+                .toList()
+                .cast<Map<String, dynamic>>();
+      });
+    } catch (e) {
+      print('Lỗi khi tải tasks: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final filteredTasks =
@@ -90,6 +118,7 @@ class _CalendarDailyState extends State<CalendarDaily> {
                                         dateStart: task['date_start'],
                                         dateEnd: task['date_end'],
                                         isDone: task['is_done'],
+                                        onTaskChanged: loadTasks,
                                       ),
                                 ),
                               );
@@ -99,6 +128,7 @@ class _CalendarDailyState extends State<CalendarDaily> {
                                   final updatedTask = await TaskAPI.getTaskById(
                                     task['id'],
                                   );
+                                  await loadTasks(); 
                                   setState(() {
                                     final index = widget.dailyTasks.indexWhere(
                                       (t) => t['id'] == task['id'],

@@ -2,12 +2,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
 import 'package:to_do_list_app/components/my_custom_snackbar.dart';
 import 'package:to_do_list_app/components/my_elevated_button.dart';
 import 'package:to_do_list_app/components/my_text_form_field.dart';
-import 'package:to_do_list_app/screens/auth/verification_code.dart';
-import 'package:to_do_list_app/services/auth.dart';
+import 'package:to_do_list_app/views/verification_code_screen.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
+import 'package:to_do_list_app/viewmodels/auth_viewmodel.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -25,6 +26,8 @@ class _SignUpState extends State<SignUp> {
   final confirmPwController = TextEditingController();
   @override
   Widget build(BuildContext context) {
+    final authVM = Provider.of<AuthViewModel>(context);
+
     return Scaffold(
       backgroundColor: AppColors.defaultText,
       appBar: AppBar(
@@ -184,10 +187,10 @@ class _SignUpState extends State<SignUp> {
                       return;
                     }
 
-                    final success = await AuthAPI.register(
-                      username: username,
-                      email: email,
-                      password: password,
+                    final success = await authVM.register(
+                      username,
+                      email,
+                      password,
                     );
 
                     if (success) {
@@ -214,7 +217,7 @@ class _SignUpState extends State<SignUp> {
                     setState(() => isLoading = false);
                   }
                 },
-                isLoading: isLoading,
+                isLoading: authVM.isLoading,
                 textButton: 'Register',
               ),
 

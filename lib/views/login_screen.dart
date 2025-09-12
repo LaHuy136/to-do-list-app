@@ -1,12 +1,13 @@
-// ignore_for_file: use_build_context_synchronously, unused_local_variable
+// ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 import 'package:to_do_list_app/components/my_custom_snackbar.dart';
 import 'package:to_do_list_app/components/my_elevated_button.dart';
 import 'package:to_do_list_app/components/my_text_form_field.dart';
-import 'package:to_do_list_app/services/auth.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:to_do_list_app/viewmodels/auth_viewmodel.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -17,11 +18,13 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   final formKey = GlobalKey<FormState>();
-  bool isLoading = false;
   final emailController = TextEditingController();
   final pwController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
+    final authVM = Provider.of<AuthViewModel>(context);
+
     return Scaffold(
       backgroundColor: AppColors.defaultText,
       appBar: AppBar(
@@ -29,19 +32,17 @@ class _LoginState extends State<Login> {
         automaticallyImplyLeading: false,
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Form(
           key: formKey,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // SizedBox(height: 50),
+              // App Name & Subname
               Center(
                 child: Column(
-                  children: [
-                    // App Name
-                    const Text(
+                  children: const [
+                    Text(
                       'TASK-WAN',
                       style: TextStyle(
                         color: AppColors.primary,
@@ -50,8 +51,7 @@ class _LoginState extends State<Login> {
                         fontSize: 30,
                       ),
                     ),
-                    // App Subname
-                    const Text(
+                    Text(
                       'Management App',
                       style: TextStyle(
                         color: AppColors.disabledPrimary,
@@ -60,10 +60,8 @@ class _LoginState extends State<Login> {
                         fontSize: 16,
                       ),
                     ),
-
-                    const SizedBox(height: 50),
-                    // Login to your account
-                    const Text(
+                    SizedBox(height: 50),
+                    Text(
                       'Login to your account',
                       style: TextStyle(
                         fontFamily: 'Poppins',
@@ -76,6 +74,7 @@ class _LoginState extends State<Login> {
               ),
 
               const SizedBox(height: 20),
+
               // Email
               MyTextFormField(
                 controller: emailController,
@@ -96,6 +95,7 @@ class _LoginState extends State<Login> {
               ),
 
               const SizedBox(height: 20),
+
               // Password
               MyTextFormField(
                 controller: pwController,
@@ -115,9 +115,8 @@ class _LoginState extends State<Login> {
 
               // Forgot Password?
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  SizedBox.shrink(),
                   InkWell(
                     onTap: () => Navigator.pushNamed(context, '/resetPassword'),
                     child: const Text(
@@ -134,18 +133,18 @@ class _LoginState extends State<Login> {
               ),
 
               const SizedBox(height: 25),
+
               // Button Login
               MyElevatedButton(
                 onPressed: () async {
                   if (!formKey.currentState!.validate()) return;
 
-                  setState(() => isLoading = true);
+                  final success = await authVM.login(
+                    emailController.text.trim(),
+                    pwController.text.trim(),
+                  );
 
-                  try {
-                    final data = await AuthAPI.login(
-                      email: emailController.text.trim(),
-                      password: pwController.text.trim(),
-                    );
+                  if (success) {
                     showCustomSnackBar(
                       context: context,
                       message: 'Login successful',
@@ -155,28 +154,27 @@ class _LoginState extends State<Login> {
                       '/home',
                       ModalRoute.withName('/home'),
                     );
-                  } catch (e) {
+                  } else {
                     showCustomSnackBar(
                       context: context,
-                      message: e.toString().replaceFirst('Exception: ', ''),
+                      message: authVM.errorMessage ?? 'Login failed',
                       type: SnackBarType.error,
                     );
-                  } finally {
-                    setState(() => isLoading = false);
                   }
                 },
-                isLoading: isLoading,
+                isLoading: authVM.isLoading,
                 textButton: 'Login',
               ),
 
               const SizedBox(height: 35),
+
               // Or Login with
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text('—', style: TextStyle(color: AppColors.primary)),
                   const SizedBox(width: 6),
-                  Text(
+                  const Text(
                     'Or Login with',
                     style: TextStyle(
                       fontSize: 14,
@@ -190,67 +188,26 @@ class _LoginState extends State<Login> {
               ),
 
               const SizedBox(height: 20),
-              // Social Button
+
+              // Social Buttons
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  // Google
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: AppColors.disabledTertiary),
-                      ),
-                      padding: EdgeInsets.all(16),
-                      child: SvgPicture.asset(
-                        'assets/icons/google.svg',
-                        width: 35,
-                        height: 35,
-                      ),
-                    ),
-                  ),
-
+                  socialButton('assets/icons/google.svg'),
                   const SizedBox(width: 40),
-                  // Facebook
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: AppColors.disabledTertiary),
-                      ),
-                      padding: EdgeInsets.all(16),
-                      child: SvgPicture.asset(
-                        'assets/icons/facebook.svg',
-                        width: 35,
-                        height: 35,
-                      ),
-                    ),
-                  ),
-
+                  socialButton('assets/icons/facebook.svg'),
                   const SizedBox(width: 40),
-                  // Twitter
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: AppColors.disabledTertiary),
-                      ),
-                      padding: EdgeInsets.all(16),
-                      child: SvgPicture.asset(
-                        'assets/icons/twitter.svg',
-                        width: 35,
-                        height: 35,
-                      ),
-                    ),
-                  ),
+                  socialButton('assets/icons/twitter.svg'),
                 ],
               ),
 
               const SizedBox(height: 20),
+
+              // Sign Up
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
+                  const Text(
                     'Don\'t have an account?',
                     style: TextStyle(
                       fontSize: 14,
@@ -261,7 +218,7 @@ class _LoginState extends State<Login> {
                   const SizedBox(width: 4),
                   InkWell(
                     onTap: () => Navigator.pushNamed(context, '/signUp'),
-                    child: Text(
+                    child: const Text(
                       'Sign Up',
                       style: TextStyle(
                         fontSize: 14,
@@ -276,6 +233,19 @@ class _LoginState extends State<Login> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget socialButton(String asset) {
+    return Expanded(
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: AppColors.disabledTertiary),
+        ),
+        padding: const EdgeInsets.all(16),
+        child: SvgPicture.asset(asset, width: 35, height: 35),
       ),
     );
   }

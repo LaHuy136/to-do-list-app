@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use, use_build_context_synchronously
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously, avoid_print
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -27,6 +27,34 @@ class CalendarPriority extends StatefulWidget {
 }
 
 class _CalendarPriorityState extends State<CalendarPriority> {
+  List<Map<String, dynamic>> priorityTasks = [];
+  List<Map<String, dynamic>> dailyTasks = [];
+  @override
+  void initState() {
+    super.initState();
+    loadTasks();
+  }
+
+  Future<void> loadTasks() async {
+    try {
+      final allTasks = await TaskAPI.getAllTasks();
+      setState(() {
+        priorityTasks =
+            allTasks
+                .where((t) => t['category'] == 'Priority')
+                .toList()
+                .cast<Map<String, dynamic>>();
+        dailyTasks =
+            allTasks
+                .where((t) => t['category'] == 'Daily')
+                .toList()
+                .cast<Map<String, dynamic>>();
+      });
+    } catch (e) {
+      print('Lỗi khi tải tasks: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final filteredTasks =
@@ -95,6 +123,7 @@ class _CalendarPriorityState extends State<CalendarPriority> {
                                         dateStart: task['date_start'],
                                         dateEnd: task['date_end'],
                                         isDone: task['is_done'],
+                                        onTaskChanged: loadTasks,
                                       ),
                                 ),
                               );
@@ -104,6 +133,7 @@ class _CalendarPriorityState extends State<CalendarPriority> {
                                   final updatedTask = await TaskAPI.getTaskById(
                                     task['id'],
                                   );
+                                  await loadTasks(); 
                                   setState(() {
                                     final index = widget.priotyTasks.indexWhere(
                                       (t) => t['id'] == task['id'],
