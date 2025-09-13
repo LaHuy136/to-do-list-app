@@ -483,10 +483,13 @@ class _DetailPriorityTaskState extends State<DetailPriorityTask> {
                                             Navigator.pop(context);
 
                                             try {
-                                              await TodoAPI.createTodo({
-                                                'content': content,
-                                                'is_done': isDone,
-                                              }, widget.taskId);
+                                              await TodoAPI.createTodo(
+                                                widget.taskId,
+                                                {
+                                                  'content': content,
+                                                  'is_done': isDone,
+                                                },
+                                              );
                                               await fetchTodos();
                                               showCustomSnackBar(
                                                 context: context,

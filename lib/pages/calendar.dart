@@ -5,7 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:to_do_list_app/components/my_bottom_navbar.dart';
 import 'package:to_do_list_app/helpers/general_helper.dart';
-import 'package:to_do_list_app/screens/tasks/add_task.dart';
+import 'package:to_do_list_app/views/task/add_task_screen.dart';
 import 'package:to_do_list_app/screens/calendars/calendar_daily.dart';
 import 'package:to_do_list_app/screens/calendars/calendar_priority.dart';
 import 'package:to_do_list_app/services/auth.dart';

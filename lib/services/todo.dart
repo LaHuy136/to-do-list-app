@@ -10,7 +10,10 @@ class TodoAPI {
     throw Exception('Failed to load todos');
   }
 
-  static Future<dynamic> createTodo(Map<String, dynamic> todo, int taskId) async {
+  static Future<dynamic> createTodo(
+    int taskId,
+    Map<String, dynamic> todo,
+  ) async {
     final res = await http.post(
       Uri.parse('$baseUrl/tasks/$taskId'),
       headers: {'Content-Type': 'application/json'},
