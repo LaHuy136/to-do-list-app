@@ -3,12 +3,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:to_do_list_app/components/my_custom_snackbar.dart';
 import 'package:to_do_list_app/components/my_elevated_button.dart';
+import 'package:to_do_list_app/models/task.dart';
+import 'package:to_do_list_app/models/todo_item.dart';
 import 'package:to_do_list_app/services/auth.dart';
-import 'package:to_do_list_app/services/task.dart';
-import 'package:to_do_list_app/services/todo.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
+import 'package:to_do_list_app/viewmodels/task_viewmodel.dart';
+import 'package:to_do_list_app/viewmodels/todoItem_viewmodel.dart';
 import 'package:to_do_list_app/widget/todo_modal.dart';
 
 class AddTask extends StatefulWidget {
@@ -24,15 +27,22 @@ class _AddTaskState extends State<AddTask> {
   String selectedCategory = '';
   final TextEditingController titleController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
-  final TextEditingController editingController = TextEditingController();
-  bool isLoading = false;
   int userId = 0;
-  List<dynamic> todos = [];
+  List<Map<String, dynamic>> todos = [];
 
   @override
   void initState() {
     super.initState();
     loadUserData();
+  }
+
+  Future<void> loadUserData() async {
+    final user = await AuthAPI.getCurrentUser();
+    if (user != null) {
+      setState(() {
+        userId = user['id'] ?? 0;
+      });
+    }
   }
 
   Future<void> pickDate(bool isStart) async {
@@ -56,7 +66,6 @@ class _AddTaskState extends State<AddTask> {
     );
 
     if (picked != null) {
-      // Ngày trùng nhau → không cho chọn
       if (picked == startDate || picked == endDate) {
         showCustomSnackBar(
           context: context,
@@ -82,7 +91,8 @@ class _AddTaskState extends State<AddTask> {
   }
 
   void handleCreateTask() async {
-    if (isLoading) return;
+    final taskVM = Provider.of<TaskViewModel>(context, listen: false);
+    final todoitemVM = Provider.of<TodoItemViewmodel>(context, listen: false);
     final title = titleController.text.trim();
     final description = descriptionController.text.trim();
 
@@ -95,63 +105,63 @@ class _AddTaskState extends State<AddTask> {
       return;
     }
 
-    final task = {
-      'title': title,
-      'description': description,
-      'category': selectedCategory,
-      'date_start': DateFormat('yyyy-MM-dd').format(startDate),
-      'date_end': DateFormat('yyyy-MM-dd').format(endDate),
-      'user_id': userId,
-    };
+    final task = Task(
+      id: 0,
+      userId: userId,
+      title: title,
+      category: selectedCategory,
+      description: description,
+      dateStart: startDate,
+      dateEnd: endDate,
+      isDone: false,
+      todos: [],
+    );
 
-    setState(() => isLoading = true);
-    try {
-      final taskResult = await TaskAPI.createTask(task);
-      final taskId = taskResult['id'];
+    final ok = await taskVM.createTask(task);
 
-      for (final todo in todos) {
-        await TodoAPI.createTodo({
-          'content': todo['content'],
-          'is_done': todo['is_done'] ?? false,
-        }, taskId);
-      }
-
+    if (!ok) {
       showCustomSnackBar(
         context: context,
-        message: 'New task has been created successfully',
-      );
-      Navigator.pop(context, true);
-    } catch (e) {
-      showCustomSnackBar(
-        context: context,
-        message: e.toString(),
+        message: taskVM.errorMessage ?? 'Failed to create task',
         type: SnackBarType.error,
       );
-    } finally {
-      setState(() => isLoading = false);
+      return;
     }
-  }
 
-  Future<void> loadUserData() async {
-    final user = await AuthAPI.getCurrentUser();
-    if (user != null) {
-      setState(() {
-        userId = user['id'] ?? 0;
-      });
+    // Tạo todos kèm theo
+    final createdTask = taskVM.tasks.last;
+    for (final todo in todos) {
+      await todoitemVM.createTodo(
+        createdTask.id,
+        TodoItem(
+          id: 0,
+          taskId: createdTask.id,
+          content: todo['content'],
+          isDone: todo['is_done'] ?? false,
+        ),
+      );
     }
+
+    showCustomSnackBar(
+      context: context,
+      message: 'New task has been created successfully',
+    );
+    Navigator.pop(context, true);
   }
 
   @override
   Widget build(BuildContext context) {
+    final taskVM = Provider.of<TaskViewModel>(context, listen: false);
+
     return Scaffold(
       backgroundColor: AppColors.primary,
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(100),
+        preferredSize: const Size.fromHeight(100),
         child: AppBar(
           backgroundColor: AppColors.primary,
           title: Container(
-            margin: EdgeInsets.only(top: 8),
-            child: Text(
+            margin: const EdgeInsets.only(top: 8),
+            child: const Text(
               'Add Task',
               style: TextStyle(
                 fontFamily: 'Poppins',
@@ -166,7 +176,7 @@ class _AddTaskState extends State<AddTask> {
           leading: InkWell(
             onTap: () => Navigator.pop(context),
             child: Container(
-              margin: EdgeInsets.only(left: 8, top: 8),
+              margin: const EdgeInsets.only(left: 8, top: 8),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
                 color: AppColors.defaultText,
@@ -180,7 +190,6 @@ class _AddTaskState extends State<AddTask> {
           ),
         ),
       ),
-
       body: ClipRRect(
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(56),
@@ -194,8 +203,7 @@ class _AddTaskState extends State<AddTask> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 30),
-                // Start and End Date
+                const SizedBox(height: 30),
                 Row(
                   children: [
                     Expanded(
@@ -216,8 +224,6 @@ class _AddTaskState extends State<AddTask> {
                   ],
                 ),
                 const SizedBox(height: 24),
-
-                // Title
                 const Text(
                   'Title',
                   style: TextStyle(
@@ -229,10 +235,7 @@ class _AddTaskState extends State<AddTask> {
                 ),
                 const SizedBox(height: 6),
                 buildTextField(titleController, 'Enter title'),
-
                 const SizedBox(height: 24),
-
-                // Category
                 const Text(
                   'Category',
                   style: TextStyle(
@@ -250,10 +253,7 @@ class _AddTaskState extends State<AddTask> {
                     buildCategoryButton('Daily Task', 'Daily'),
                   ],
                 ),
-
                 const SizedBox(height: 24),
-
-                // Description
                 const Text(
                   'Description',
                   style: TextStyle(
@@ -269,11 +269,9 @@ class _AddTaskState extends State<AddTask> {
                   'Enter description',
                   maxLines: 5,
                 ),
-
                 if (selectedCategory == 'Priority') ...[
-                  // To Do Item
                   const SizedBox(height: 24),
-                  Text(
+                  const Text(
                     'To do List',
                     style: TextStyle(
                       fontFamily: 'Poppins',
@@ -282,64 +280,54 @@ class _AddTaskState extends State<AddTask> {
                       color: AppColors.primary,
                     ),
                   ),
-                  SizedBox(height: 6),
-
-                  // Add To do
+                  const SizedBox(height: 6),
                   MyElevatedButton(
-                    onPressed: () {
-                      showAddTodoModal();
-                    },
+                    onPressed: () => showAddTodoModal(),
                     textButton: '+',
                   ),
                 ],
                 if (todos.isNotEmpty) ...[
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Column(
                     children:
-                        todos
-                            .map(
-                              (todo) => Container(
-                                padding: EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: AppColors.disabledTertiary,
-                                  ),
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        todo['content'],
-                                        style: TextStyle(
-                                          fontFamily: 'Poppins',
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w400,
-                                        ),
-                                      ),
-                                    ),
-                                    Checkbox(
-                                      value: todo['is_done'] == true,
-                                      activeColor: AppColors.primary,
-                                      onChanged: (value) async {},
-                                    ),
-                                  ],
-                                ),
+                        todos.map((todo) {
+                          return Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: AppColors.disabledTertiary,
                               ),
-                            )
-                            .toList(),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    todo['content'],
+                                    style: const TextStyle(
+                                      fontFamily: 'Poppins',
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                ),
+                                Checkbox(
+                                  value: todo['is_done'] == true,
+                                  activeColor: AppColors.primary,
+                                  onChanged: (_) {},
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
                   ),
                 ],
-
-                SizedBox(height: 32),
-
-                // Create Button
+                const SizedBox(height: 32),
                 MyElevatedButton(
                   onPressed: handleCreateTask,
                   textButton: 'Create Task',
-                  isLoading: isLoading,
+                  isLoading: taskVM.isLoading,
                 ),
               ],
             ),

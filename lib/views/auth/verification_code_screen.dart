@@ -7,7 +7,7 @@ import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do_list_app/components/my_custom_snackbar.dart';
 import 'package:to_do_list_app/components/my_elevated_button.dart';
-import 'package:to_do_list_app/views/success_verification_screen.dart';
+import 'package:to_do_list_app/views/auth/success_verification_screen.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
 import 'package:to_do_list_app/viewmodels/auth_viewmodel.dart';
 

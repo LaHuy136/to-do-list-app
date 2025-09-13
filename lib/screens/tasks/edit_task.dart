@@ -555,10 +555,10 @@ class _EditTaskState extends State<EditTask> {
               if (content.isEmpty) return;
               Navigator.pop(context);
               try {
-                await TodoAPI.createTodo({
+                await TodoAPI.createTodo(widget.taskId, {
                   'content': content,
                   'is_done': isDone,
-                }, widget.taskId);
+                });
                 await fetchTodos();
                 showCustomSnackBar(
                   context: context,

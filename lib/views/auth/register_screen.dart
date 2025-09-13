@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:to_do_list_app/components/my_custom_snackbar.dart';
 import 'package:to_do_list_app/components/my_elevated_button.dart';
 import 'package:to_do_list_app/components/my_text_form_field.dart';
-import 'package:to_do_list_app/views/verification_code_screen.dart';
+import 'package:to_do_list_app/views/auth/verification_code_screen.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
 import 'package:to_do_list_app/viewmodels/auth_viewmodel.dart';
 

@@ -5,10 +5,12 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:to_do_list_app/pages/calendar.dart';
-import 'package:to_do_list_app/views/login_screen.dart';
+import 'package:to_do_list_app/viewmodels/task_viewmodel.dart';
+import 'package:to_do_list_app/viewmodels/todoItem_viewmodel.dart';
+import 'package:to_do_list_app/views/auth/login_screen.dart';
 import 'package:to_do_list_app/pages/profile.dart';
 import 'package:to_do_list_app/pages/reset_password.dart';
-import 'package:to_do_list_app/views/register_screen.dart';
+import 'package:to_do_list_app/views/auth/register_screen.dart';
 import 'package:to_do_list_app/pages/dashboard.dart';
 import 'package:to_do_list_app/screens/introduce.dart';
 import 'package:provider/provider.dart';
@@ -32,6 +34,8 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider<AuthViewModel>(create: (_) => AuthViewModel()),
+        ChangeNotifierProvider<TaskViewModel>(create: (_) => TaskViewModel()),
+        ChangeNotifierProvider<TodoItemViewmodel>(create: (_) => TodoItemViewmodel()),
       ],
       child: MyApp(fcmToken: token),
     ),
