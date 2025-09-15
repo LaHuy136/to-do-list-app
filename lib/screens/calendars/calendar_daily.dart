@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:to_do_list_app/components/my_custom_snackbar.dart';
 import 'package:to_do_list_app/components/my_elevated_button.dart';
-import 'package:to_do_list_app/screens/tasks/edit_task.dart';
+import 'package:to_do_list_app/views/task/edit_task_screen.dart';
 import 'package:to_do_list_app/services/task.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
 

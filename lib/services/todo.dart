@@ -23,13 +23,19 @@ class TodoAPI {
     throw Exception('Failed to create todo');
   }
 
-  static Future<dynamic> updateTodo(int id, Map<String, dynamic> todo) async {
+  static Future<Map<String, dynamic>> updateTodo(
+    int id,
+    Map<String, dynamic> todo,
+  ) async {
     final res = await http.put(
       Uri.parse('$baseUrl/$id'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(todo),
     );
-    if (res.statusCode == 200) return jsonDecode(res.body);
+
+    if (res.statusCode == 200) {
+      return jsonDecode(res.body) as Map<String, dynamic>;
+    }
     throw Exception('Failed to update todo');
   }
 

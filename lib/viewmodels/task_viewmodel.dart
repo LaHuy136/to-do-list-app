@@ -83,12 +83,12 @@ class TaskViewModel extends ChangeNotifier {
   }
 
   /// Cập nhật task
-  Future<bool> updateTask(int id, Task task) async {
+  Future<bool> updateTask(Task task) async {
     _setLoading(true);
     try {
-      final res = await TaskAPI.updateTask(id, task.toJson());
+      final res = await TaskAPI.updateTask(task.id!, task.toJson());
       final updatedTask = Task.fromJson(res);
-      final index = _tasks.indexWhere((t) => t.id == id);
+      final index = _tasks.indexWhere((t) => t.id == task.id);
       if (index != -1) {
         _tasks[index] = updatedTask;
       }
