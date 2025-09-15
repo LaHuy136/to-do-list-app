@@ -11,7 +11,7 @@ import 'package:to_do_list_app/models/todo_item.dart';
 import 'package:to_do_list_app/services/auth.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
 import 'package:to_do_list_app/viewmodels/task_viewmodel.dart';
-import 'package:to_do_list_app/viewmodels/todoItem_viewmodel.dart';
+import 'package:to_do_list_app/viewmodels/todoitem_viewmodel.dart';
 import 'package:to_do_list_app/widget/todo_modal.dart';
 
 class AddTask extends StatefulWidget {
@@ -92,7 +92,7 @@ class _AddTaskState extends State<AddTask> {
 
   void handleCreateTask() async {
     final taskVM = Provider.of<TaskViewModel>(context, listen: false);
-    final todoitemVM = Provider.of<TodoItemViewmodel>(context, listen: false);
+    final todoitemVM = Provider.of<TodoItemViewModel>(context, listen: false);
     final title = titleController.text.trim();
     final description = descriptionController.text.trim();
 
@@ -106,7 +106,6 @@ class _AddTaskState extends State<AddTask> {
     }
 
     final task = Task(
-      id: 0,
       userId: userId,
       title: title,
       category: selectedCategory,
@@ -117,9 +116,9 @@ class _AddTaskState extends State<AddTask> {
       todos: [],
     );
 
-    final ok = await taskVM.createTask(task);
+    final result = await taskVM.createTask(task);
 
-    if (!ok) {
+    if (!result) {
       showCustomSnackBar(
         context: context,
         message: taskVM.errorMessage ?? 'Failed to create task',
@@ -132,10 +131,9 @@ class _AddTaskState extends State<AddTask> {
     final createdTask = taskVM.tasks.last;
     for (final todo in todos) {
       await todoitemVM.createTodo(
-        createdTask.id,
+        createdTask.id!,
         TodoItem(
-          id: 0,
-          taskId: createdTask.id,
+          taskId: createdTask.id!,
           content: todo['content'],
           isDone: todo['is_done'] ?? false,
         ),
@@ -291,33 +289,37 @@ class _AddTaskState extends State<AddTask> {
                   Column(
                     children:
                         todos.map((todo) {
-                          return Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: AppColors.disabledTertiary,
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: AppColors.disabledTertiary,
+                                ),
+                                borderRadius: BorderRadius.circular(16),
                               ),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    todo['content'],
-                                    style: const TextStyle(
-                                      fontFamily: 'Poppins',
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w400,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      todo['content'],
+                                      style: const TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w400,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                Checkbox(
-                                  value: todo['is_done'] == true,
-                                  activeColor: AppColors.primary,
-                                  onChanged: (_) {},
-                                ),
-                              ],
+                                  Checkbox(
+                                    value: todo['is_done'] == true,
+                                    activeColor: AppColors.primary,
+                                    onChanged: (_) {},
+                                  ),
+                                ],
+                              ),
                             ),
                           );
                         }).toList(),
@@ -452,13 +454,25 @@ class _AddTaskState extends State<AddTask> {
           (context) => TodoModal(
             title: 'New To do',
             controller: newTodoController,
-            onSubmit: () {
+            onSubmit: () async {
               final content = newTodoController.text.trim();
               if (content.isEmpty) return;
-              setState(() {
-                todos.add({'content': content, 'is_done': isDone});
-              });
               Navigator.pop(context);
+              try {
+                setState(() {
+                  todos.add({'content': content, 'is_done': isDone});
+                });
+                showCustomSnackBar(
+                  context: context,
+                  message: 'To do created successfully',
+                );
+              } catch (e) {
+                showCustomSnackBar(
+                  context: context,
+                  message: 'To do create failed: $e',
+                  type: SnackBarType.error,
+                );
+              }
             },
           ),
     );

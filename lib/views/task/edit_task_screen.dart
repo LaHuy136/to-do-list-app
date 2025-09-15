@@ -3,11 +3,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:to_do_list_app/components/my_custom_snackbar.dart';
 import 'package:to_do_list_app/components/my_elevated_button.dart';
-import 'package:to_do_list_app/services/task.dart';
-import 'package:to_do_list_app/services/todo.dart';
+import 'package:to_do_list_app/models/task.dart';
+import 'package:to_do_list_app/models/todo_item.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
+import 'package:to_do_list_app/viewmodels/auth_viewmodel.dart';
+import 'package:to_do_list_app/viewmodels/task_viewmodel.dart';
+import 'package:to_do_list_app/viewmodels/todoitem_viewmodel.dart';
 import 'package:to_do_list_app/widget/todo_modal.dart';
 
 class EditTask extends StatefulWidget {
@@ -44,7 +48,7 @@ class _EditTaskState extends State<EditTask> {
   int userId = 0;
   late DateTime dateStart;
   late DateTime dateEnd;
-  List<dynamic> todos = [];
+  List<Map<String, dynamic>> todos = [];
 
   @override
   void initState() {
@@ -54,6 +58,12 @@ class _EditTaskState extends State<EditTask> {
     titleController.text = widget.title;
     descriptionController.text = widget.description;
     isDone = widget.isDone;
+    final authVM = Provider.of<AuthViewModel>(context, listen: false);
+    authVM.loadUser().then((_) {
+      setState(() {
+        userId = authVM.currentUser?.id ?? 0;
+      });
+    });
     fetchTodos();
   }
 
@@ -95,7 +105,10 @@ class _EditTaskState extends State<EditTask> {
   }
 
   void handleUpdateTask() async {
-    if (isLoading) return;
+    final taskVM = Provider.of<TaskViewModel>(context, listen: false);
+
+    setState(() => isLoading = true);
+
     final title = titleController.text.trim();
     final description = descriptionController.text.trim();
 
@@ -105,41 +118,82 @@ class _EditTaskState extends State<EditTask> {
         message: 'Please fill in information',
         type: SnackBarType.error,
       );
+      setState(() => isLoading = false);
       return;
     }
 
-    final task = {
-      'title': title,
-      'description': description,
-      'category': widget.category,
-      'date_start': DateFormat('yyyy-MM-dd').format(dateStart),
-      'date_end': DateFormat('yyyy-MM-dd').format(dateEnd),
-      'is_done': isDone,
-    };
+    final task = Task(
+      id: widget.taskId,
+      userId: userId,
+      title: title,
+      category: widget.category,
+      description: description,
+      dateStart: dateStart,
+      dateEnd: dateEnd,
+      isDone: isDone,
+      todos: [],
+    );
 
-    setState(() => isLoading = true);
     try {
-      final result = await TaskAPI.updateTask(widget.taskId, task);
-      Navigator.pop(context, true);
+      final result = await taskVM.updateTask(task);
+      if (!result) {
+        if (!mounted) return;
+        showCustomSnackBar(
+          context: context,
+          message: 'Failed to update task',
+          type: SnackBarType.error,
+        );
+        return;
+      }
+
+      if (mounted) {
+        Navigator.pop(context, true);
+      }
     } catch (e) {
-      print('Error: ${e.toString()}');
+      if (mounted) {
+        showCustomSnackBar(
+          context: context,
+          message: 'Error: ${e.toString()}',
+          type: SnackBarType.error,
+        );
+      }
     } finally {
-      setState(() => isLoading = false);
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
     }
   }
 
   Future<void> fetchTodos() async {
+    final todoVM = Provider.of<TodoItemViewModel>(context, listen: false);
     try {
-      todos = await TodoAPI.getTodosByTask(widget.taskId);
-      setState(() {});
+      final ok = await todoVM.fetchTodosByTask(widget.taskId);
+      if (!mounted) return;
+
+      if (ok) {
+        setState(() {});
+      } else {
+        showCustomSnackBar(
+          context: context,
+          message: 'Error loading list todo',
+          type: SnackBarType.error,
+        );
+      }
     } catch (e) {
-      print('Lỗi khi tải todos: $e');
-      showCustomSnackBar(context: context, message: 'Error loading list todo');
+      if (!mounted) return;
+      showCustomSnackBar(
+        context: context,
+        message: 'Error loading list todo',
+        type: SnackBarType.error,
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final taskVM = Provider.of<TaskViewModel>(context, listen: false);
+    final todos = context.watch<TodoItemViewModel>().todos;
+
     return Scaffold(
       backgroundColor: AppColors.primary,
       appBar: PreferredSize(
@@ -305,20 +359,16 @@ class _EditTaskState extends State<EditTask> {
                     itemCount: todos.length,
                     itemBuilder: (context, index) {
                       final todo = todos[index];
-                      final taskCompleted =
-                          todos.isNotEmpty &&
-                          todos.every((t) => t['is_done'] == true);
-                      final isExpired = DateTime.parse(
-                        widget.dateEnd,
-                      ).isBefore(DateTime.now());
+                      final todoVM = Provider.of<TodoItemViewModel>(
+                        context,
+                        listen: false,
+                      );
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 12),
                         child: InkWell(
-                          onTap: () {
-                            showEditTodoModal(todo);
-                          },
+                          onTap: () => showEditTodoModal(todo.toJson()),
                           child: Container(
-                            padding: EdgeInsets.all(8),
+                            padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
                               border: Border.all(
                                 color: AppColors.disabledTertiary,
@@ -330,8 +380,8 @@ class _EditTaskState extends State<EditTask> {
                               children: [
                                 Expanded(
                                   child: Text(
-                                    todo['content'],
-                                    style: TextStyle(
+                                    todo.content,
+                                    style: const TextStyle(
                                       fontFamily: 'Poppins',
                                       fontSize: 14,
                                       fontWeight: FontWeight.w400,
@@ -339,20 +389,20 @@ class _EditTaskState extends State<EditTask> {
                                   ),
                                 ),
                                 Checkbox(
-                                  value: todo['is_done'] == true,
+                                  value: todo.isDone,
                                   activeColor: AppColors.primary,
                                   onChanged: (value) async {
                                     try {
-                                      await TodoAPI.updateTodo(todo['id'], {
-                                        ...todo,
-                                        'is_done': value,
-                                      });
-                                      widget.onTaskChanged();
+                                      await todoVM.updateTodo(
+                                        todo.copyWith(isDone: value),
+                                      );
                                       await fetchTodos();
+                                      widget.onTaskChanged();
                                     } catch (e) {
                                       showCustomSnackBar(
                                         context: context,
                                         message: 'Update failed: $e',
+                                        type: SnackBarType.error,
                                       );
                                     }
                                   },
@@ -481,6 +531,7 @@ class _EditTaskState extends State<EditTask> {
   }
 
   void showEditTodoModal(Map<String, dynamic> todo) {
+    final todoVM = Provider.of<TodoItemViewModel>(context, listen: false);
     editingController.text = todo['content'];
     showModalBottomSheet(
       context: context,
@@ -489,7 +540,7 @@ class _EditTaskState extends State<EditTask> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder:
-          (context) => TodoModal(
+          (modalContext) => TodoModal(
             title: 'Edit To do',
             controller: editingController,
             onSubmit: () async {
@@ -497,10 +548,12 @@ class _EditTaskState extends State<EditTask> {
               if (newContent.isEmpty) return;
               Navigator.pop(context);
               try {
-                await TodoAPI.updateTodo(todo['id'], {
-                  ...todo,
-                  'content': newContent,
-                });
+                await todoVM.updateTodo(
+                  TodoItem.fromJson(todo),
+                  content: newContent,
+                  isDone: todo['is_done'] as bool,
+                );
+
                 editingController.clear();
                 await fetchTodos();
                 showCustomSnackBar(
@@ -518,16 +571,16 @@ class _EditTaskState extends State<EditTask> {
             onDelete: () async {
               Navigator.pop(context);
               try {
-                await TodoAPI.deleteTodo(todo['id']);
+                await todoVM.deleteTodo(widget.taskId, todo['id']);
                 await fetchTodos();
                 showCustomSnackBar(
                   context: context,
-                  message: 'Deleted successfully',
+                  message: 'To do has been deleted successfully',
                 );
               } catch (e) {
                 showCustomSnackBar(
                   context: context,
-                  message: 'Delete failed: $e',
+                  message: 'Delete To do failed: $e',
                   type: SnackBarType.error,
                 );
               }
@@ -539,6 +592,7 @@ class _EditTaskState extends State<EditTask> {
   void showAddTodoModal() {
     final newTodoController = TextEditingController();
     bool isDone = false;
+    final todoVM = Provider.of<TodoItemViewModel>(context, listen: false);
 
     showModalBottomSheet(
       context: context,
@@ -547,7 +601,7 @@ class _EditTaskState extends State<EditTask> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder:
-          (context) => TodoModal(
+          (ctx) => TodoModal(
             title: 'New To do',
             controller: newTodoController,
             onSubmit: () async {
@@ -555,11 +609,9 @@ class _EditTaskState extends State<EditTask> {
               if (content.isEmpty) return;
               Navigator.pop(context);
               try {
-                await TodoAPI.createTodo(widget.taskId, {
-                  'content': content,
-                  'is_done': isDone,
+                setState(() {
+                  todos.add({'content': content, 'is_done': isDone});
                 });
-                await fetchTodos();
                 showCustomSnackBar(
                   context: context,
                   message: 'To do created successfully',

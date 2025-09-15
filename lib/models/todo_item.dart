@@ -1,11 +1,11 @@
 class TodoItem {
-  final int id;
+  final int? id;
   final int taskId;
   final String content;
   final bool isDone;
 
   TodoItem({
-    required this.id,
+    this.id,
     required this.taskId,
     required this.content,
     this.isDone = false,
@@ -13,18 +13,30 @@ class TodoItem {
 
   factory TodoItem.fromJson(Map<String, dynamic> json) {
     return TodoItem(
-      id: json['id'],
-      taskId: json['task_id'],
-      content: json['content'],
-      isDone: json['is_done'] ?? false,
+      id: json['id'] != null ? json['id'] as int : null,
+      taskId: json['task_id'] != null ? json['task_id'] as int : 0,
+      content: json['content'] as String? ?? '',
+      isDone: (json['is_done'] is bool)
+          ? json['is_done'] as bool
+          : (json['is_done'] == 1 || json['is_done'] == 'true'),
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {'id': id, 'task_id': taskId, 'content': content, 'is_done': isDone};
+    return {
+      'id': id,
+      'task_id': taskId,
+      'content': content,
+      'is_done': isDone,
+    };
   }
 
-  TodoItem copyWith({int? id, int? taskId, String? content, bool? isDone}) {
+  TodoItem copyWith({
+    int? id,
+    int? taskId,
+    String? content,
+    bool? isDone,
+  }) {
     return TodoItem(
       id: id ?? this.id,
       taskId: taskId ?? this.taskId,

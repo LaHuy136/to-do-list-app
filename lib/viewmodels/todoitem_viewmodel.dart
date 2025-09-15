@@ -5,7 +5,7 @@ import 'package:to_do_list_app/models/task.dart';
 import 'package:to_do_list_app/models/todo_item.dart';
 import 'package:to_do_list_app/services/todo.dart';
 
-class TodoItemViewmodel extends ChangeNotifier {
+class TodoItemViewModel extends ChangeNotifier {
   final List<Task> _tasks = [];
   List<TodoItem> _todos = [];
   String? _errorMessage;
@@ -15,15 +15,17 @@ class TodoItemViewmodel extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
 
   /// Lấy danh sách todo theo taskId
-  Future<void> fetchTodosByTask(int taskId) async {
+  Future<bool> fetchTodosByTask(int taskId) async {
     try {
       final data = await TodoAPI.getTodosByTask(taskId);
       _todos = data.map<TodoItem>((e) => TodoItem.fromJson(e)).toList();
       notifyListeners();
+      return true;
     } catch (e) {
       _errorMessage = e.toString();
       notifyListeners();
     }
+    return false;
   }
 
   /// Tạo todo mới
@@ -60,7 +62,7 @@ class TodoItemViewmodel extends ChangeNotifier {
         content: content ?? todo.content,
       );
 
-      final updatedJson = await TodoAPI.updateTodo(todo.id, payload.toJson());
+      final updatedJson = await TodoAPI.updateTodo(todo.id!, payload.toJson());
       final updatedTodo = TodoItem.fromJson(updatedJson);
 
       final index = _todos.indexWhere((t) => t.id == todo.id);

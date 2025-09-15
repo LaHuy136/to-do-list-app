@@ -1,7 +1,7 @@
 import 'package:to_do_list_app/models/todo_item.dart';
 
 class Task {
-  final int id;
+  final int? id;
   final int userId;
   final String title;
   final String category;
@@ -13,7 +13,7 @@ class Task {
   final List<TodoItem> todos;
 
   Task({
-    required this.id,
+    this.id,
     required this.userId,
     required this.title,
     required this.category,
