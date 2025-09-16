@@ -1,12 +1,13 @@
-// ignore_for_file: deprecated_member_use, use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
 import 'package:to_do_list_app/components/my_custom_snackbar.dart';
 import 'package:to_do_list_app/components/my_elevated_button.dart';
 import 'package:to_do_list_app/helpers/general_helper.dart';
-import 'package:to_do_list_app/services/task.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
+import 'package:to_do_list_app/viewmodels/task_viewmodel.dart';
 
 class DetailDailyTask extends StatefulWidget {
   final int taskId;
@@ -18,12 +19,24 @@ class DetailDailyTask extends StatefulWidget {
 
 class _DetailDailyTaskState extends State<DetailDailyTask> {
   @override
+  void initState() {
+    super.initState();
+    Future.microtask(
+      () => Provider.of<TaskViewModel>(
+        context,
+        listen: false,
+      ).fetchTaskById(widget.taskId),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    bool isLoading = false;
-    return FutureBuilder(
-      future: TaskAPI.getTaskById(widget.taskId),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
+    return Consumer<TaskViewModel>(
+      builder: (context, taskVM, child) {
+        final task = taskVM.selectedTask;
+        final isLoading = taskVM.isLoading;
+
+        if (isLoading && task == null) {
           return const Center(
             child: SizedBox(
               width: 20,
@@ -35,12 +48,19 @@ class _DetailDailyTaskState extends State<DetailDailyTask> {
             ),
           );
         }
-        final task = snapshot.data;
-        final startDate = DateTime.parse(task['date_start']);
-        final endDate = DateTime.parse(task['date_end']);
-        final isExpired = DateTime.parse(
-          task['date_end'],
-        ).isBefore(DateTime.now());
+
+        if (task == null) {
+          return Center(
+            child: Text(
+              taskVM.errorMessage ?? "Không tìm thấy task",
+              style: const TextStyle(color: Colors.red),
+            ),
+          );
+        }
+
+        final startDate = task.dateStart;
+        final endDate = task.dateEnd;
+        final isExpired = endDate.isBefore(DateTime.now());
         final timeData = calculateTimeDiff(startDate, endDate);
 
         return Scaffold(
@@ -52,8 +72,8 @@ class _DetailDailyTaskState extends State<DetailDailyTask> {
             leading: Padding(
               padding: const EdgeInsets.only(left: 16, top: 8),
               child: Text(
-                task['title'] ?? 'Task Detail',
-                style: TextStyle(
+                task.title,
+                style: const TextStyle(
                   fontFamily: 'Poppins',
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
@@ -69,7 +89,7 @@ class _DetailDailyTaskState extends State<DetailDailyTask> {
                     borderRadius: BorderRadius.circular(16),
                     color: AppColors.primary,
                   ),
-                  padding: EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
                   child: InkWell(
                     onTap: () => Navigator.pop(context, true),
                     child: SvgPicture.asset(
@@ -89,82 +109,39 @@ class _DetailDailyTaskState extends State<DetailDailyTask> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Priority Task
+                  // Dates
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Date Start
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'start',
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w500,
-                              fontSize: 14,
-                            ),
-                          ),
-                          Text(
-                            task['date_start'],
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w400,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      // Date End
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            'end',
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w500,
-                              fontSize: 14,
-                            ),
-                          ),
-                          Text(
-                            task['date_end'],
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w400,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
+                      _buildDateColumn("start", task.dateStart),
+                      _buildDateColumn("end", task.dateEnd, isEnd: true),
                     ],
                   ),
+                  const SizedBox(height: 10),
 
-                  SizedBox(height: 10),
-                  // Container Date Time
+                  // Time Box
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       ...(timeData['type'] == 'same-day'
                           ? [
                             buildTimeBox('${timeData['hours']}', 'hours'),
-                            SizedBox(width: 10),
+                            const SizedBox(width: 10),
                             buildTimeBox('${timeData['minutes']}', 'minutes'),
                           ]
                           : [
                             buildTimeBox('${timeData['months']}', 'months'),
-                            SizedBox(width: 10),
+                            const SizedBox(width: 10),
                             buildTimeBox('${timeData['days']}', 'days'),
-                            SizedBox(width: 10),
+                            const SizedBox(width: 10),
                             buildTimeBox('${timeData['hours']}', 'hours'),
                           ]),
                     ],
                   ),
+                  const SizedBox(height: 20),
 
-                  SizedBox(height: 20),
                   // Description
-                  Text(
+                  const Text(
                     'Description',
                     style: TextStyle(
                       fontFamily: 'Poppins',
@@ -172,36 +149,34 @@ class _DetailDailyTaskState extends State<DetailDailyTask> {
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Text(
-                    task['description'],
-                    style: TextStyle(
+                    task.description,
+                    style: const TextStyle(
                       fontFamily: 'Poppins',
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
+                  const SizedBox(height: 20),
 
-                  SizedBox(height: 20),
-                  // Button Finish
+                  // Finish Button
                   MyElevatedButton(
-                    isLoading: isLoading,
+                    isLoading: taskVM.isLoading,
                     onPressed:
                         isExpired
                             ? null
                             : () async {
-                              setState(() => isLoading = true);
-
-                              try {
-                                await TaskAPI.updateTask(task['id'], {
-                                  ...task,
-                                  'is_done': true,
-                                });
-
-                                setState(() => isLoading = false);
+                              final updated = task.copyWith(isDone: true);
+                              final success = await taskVM.updateTask(updated);
+                              if (success) {
+                                showCustomSnackBar(
+                                  context: context,
+                                  message:
+                                      'Update daily task as done is successfully',
+                                );
                                 Navigator.pop(context, true);
-                              } catch (e) {
-                                setState(() => isLoading = false);
+                              } else {
                                 showCustomSnackBar(
                                   context: context,
                                   message:
@@ -219,6 +194,31 @@ class _DetailDailyTaskState extends State<DetailDailyTask> {
       },
     );
   }
+
+  Widget _buildDateColumn(String label, DateTime value, {bool isEnd = false}) {
+    return Column(
+      crossAxisAlignment:
+          isEnd ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.w500,
+            fontSize: 14,
+          ),
+        ),
+        Text(
+          value.toString().substring(0, 11),
+          style: const TextStyle(
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.w400,
+            fontSize: 12,
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 Widget buildTimeBox(String value, String label) {
@@ -232,12 +232,11 @@ Widget buildTimeBox(String value, String label) {
       ),
       padding: const EdgeInsets.all(16),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
             value,
-            style: TextStyle(
+            style: const TextStyle(
               fontFamily: 'Poppins',
               fontSize: 40,
               fontWeight: FontWeight.bold,
@@ -247,7 +246,7 @@ Widget buildTimeBox(String value, String label) {
           const SizedBox(height: 10),
           Text(
             label,
-            style: TextStyle(
+            style: const TextStyle(
               fontFamily: 'Poppins',
               fontSize: 14,
               fontWeight: FontWeight.w500,

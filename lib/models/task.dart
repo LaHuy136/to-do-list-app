@@ -59,16 +59,26 @@ class Task {
     };
   }
 
-  Task copyWith({List<TodoItem>? todos}) {
+  Task copyWith({
+    int? id,
+    int? userId,
+    String? title,
+    String? category,
+    String? description,
+    DateTime? dateStart,
+    DateTime? dateEnd,
+    bool? isDone,
+    List<TodoItem>? todos,
+  }) {
     return Task(
-      id: id,
-      userId: userId,
-      title: title,
-      category: category,
-      description: description,
-      dateStart: dateStart,
-      dateEnd: dateEnd,
-      isDone: isDone,
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      title: title ?? this.title,
+      category: category ?? this.category,
+      description: description ?? this.description,
+      dateStart: dateStart ?? this.dateStart,
+      dateEnd: dateEnd ?? this.dateEnd,
+      isDone: isDone ?? this.isDone,
       todos: todos ?? this.todos,
     );
   }
