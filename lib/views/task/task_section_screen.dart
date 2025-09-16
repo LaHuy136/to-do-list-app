@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:to_do_list_app/helpers/general_helper.dart';
-import 'package:to_do_list_app/screens/tasks/detail_daily_task.dart';
-import 'package:to_do_list_app/screens/tasks/detail_priority_task.dart';
+import 'package:to_do_list_app/views/task/detail_daily_task_screen.dart';
+import 'package:to_do_list_app/views/task/detail_priority_task_screen.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
 
 class TaskSection extends StatefulWidget {

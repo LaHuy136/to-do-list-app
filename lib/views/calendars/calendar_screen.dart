@@ -1,16 +1,17 @@
-// ignore_for_file: deprecated_member_use, avoid_print
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:to_do_list_app/components/my_bottom_navbar.dart';
 import 'package:to_do_list_app/helpers/general_helper.dart';
 import 'package:to_do_list_app/views/task/add_task_screen.dart';
-import 'package:to_do_list_app/screens/calendars/calendar_daily.dart';
-import 'package:to_do_list_app/screens/calendars/calendar_priority.dart';
+import 'package:to_do_list_app/views/calendars/calendar_daily_screen.dart';
+import 'package:to_do_list_app/views/calendars/calendar_priority_screen.dart';
 import 'package:to_do_list_app/services/auth.dart';
-import 'package:to_do_list_app/services/task.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
+import 'package:to_do_list_app/viewmodels/task_viewmodel.dart';
 
 class Calendar extends StatefulWidget {
   const Calendar({super.key});
@@ -26,18 +27,15 @@ class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
   late ScrollController scrollController;
   final double itemWidth = 82;
 
-  List<Map<String, dynamic>> priorityTasks = [];
-  List<Map<String, dynamic>> dailyTasks = [];
   int userId = 0;
 
   @override
   void initState() {
     super.initState();
-    loadUserData();
-    loadTasks();
     _tabController = TabController(length: 2, vsync: this);
     formattedDate = DateFormat('MMM, yyyy').format(DateTime.now());
     scrollController = ScrollController();
+    loadUserData();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       int todayIndex = selectedDate.day - 1;
@@ -47,6 +45,18 @@ class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
         curve: Curves.easeInOut,
       );
     });
+  }
+
+  Future<void> loadUserData() async {
+    final user = await AuthAPI.getCurrentUser();
+    if (user != null) {
+      setState(() {
+        userId = user['id'] ?? 0;
+      });
+
+      final taskVM = context.read<TaskViewModel>();
+      await taskVM.fetchTasks(userId: userId);
+    }
   }
 
   @override
@@ -92,35 +102,6 @@ class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
         );
-      });
-    }
-  }
-
-  Future<void> loadTasks() async {
-    try {
-      final allTasks = await TaskAPI.getAllTasks();
-      setState(() {
-        priorityTasks =
-            allTasks
-                .where((t) => t['category'] == 'Priority')
-                .toList()
-                .cast<Map<String, dynamic>>();
-        dailyTasks =
-            allTasks
-                .where((t) => t['category'] == 'Daily')
-                .toList()
-                .cast<Map<String, dynamic>>();
-      });
-    } catch (e) {
-      print('Error loading tasks: $e');
-    }
-  }
-
-  Future<void> loadUserData() async {
-    final user = await AuthAPI.getCurrentUser();
-    if (user != null) {
-      setState(() {
-        userId = user['id'] ?? 0;
       });
     }
   }
@@ -171,7 +152,7 @@ class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
                 );
 
                 if (result == true) {
-                  loadTasks();
+                  context.read<TaskViewModel>().fetchTasks(userId: userId);
                 }
               },
               child: Container(
@@ -302,7 +283,7 @@ class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
             ),
             labelColor: AppColors.primary,
             unselectedLabelColor: AppColors.bgprogessBar,
-            labelStyle: TextStyle(
+            labelStyle: const TextStyle(
               fontFamily: 'Poppins',
               fontWeight: FontWeight.w600,
               fontSize: 16,
@@ -315,13 +296,11 @@ class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
               controller: _tabController,
               children: [
                 CalendarPriority(
-                  priotyTasks: priorityTasks,
                   category: 'Priority',
                   userId: userId,
                   selectedDate: selectedDate,
                 ),
                 CalendarDaily(
-                  dailyTasks: dailyTasks,
                   category: 'Daily',
                   userId: userId,
                   selectedDate: selectedDate,

@@ -9,7 +9,7 @@ import 'package:to_do_list_app/components/my_bottom_navbar.dart';
 import 'package:intl/intl.dart';
 import 'package:to_do_list_app/provider/notification.provider.dart';
 import 'package:to_do_list_app/screens/notification.dart';
-import 'package:to_do_list_app/screens/tasks/task_section.dart';
+import 'package:to_do_list_app/views/task/task_section_screen.dart';
 import 'package:to_do_list_app/services/auth.dart';
 import 'package:to_do_list_app/services/task.dart';
 
