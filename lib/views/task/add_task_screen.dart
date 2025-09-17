@@ -49,7 +49,7 @@ class _AddTaskState extends State<AddTask> {
     final picked = await showDatePicker(
       context: context,
       initialDate: isStart ? startDate : endDate,
-      firstDate: DateTime(2000),
+      firstDate: DateTime.now(),
       lastDate: DateTime(2100),
       builder: (context, child) {
         return Theme(
@@ -70,6 +70,7 @@ class _AddTaskState extends State<AddTask> {
         showCustomSnackBar(
           context: context,
           message: 'The starting date and ending is not overlapping',
+          type: SnackBarType.error,
         );
         return;
       }

@@ -6,10 +6,10 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do_list_app/components/my_bottom_navbar.dart';
 import 'package:to_do_list_app/helpers/general_helper.dart';
+import 'package:to_do_list_app/viewmodels/auth_viewmodel.dart';
 import 'package:to_do_list_app/views/task/add_task_screen.dart';
 import 'package:to_do_list_app/views/calendars/calendar_daily_screen.dart';
 import 'package:to_do_list_app/views/calendars/calendar_priority_screen.dart';
-import 'package:to_do_list_app/services/auth.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
 import 'package:to_do_list_app/viewmodels/task_viewmodel.dart';
 
@@ -25,6 +25,8 @@ class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
   DateTime selectedDate = DateTime.now();
   late TabController _tabController;
   late ScrollController scrollController;
+  List<Map<String, dynamic>> priorityTasks = [];
+  List<Map<String, dynamic>> dailyTasks = [];
   final double itemWidth = 82;
 
   int userId = 0;
@@ -35,9 +37,10 @@ class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
     _tabController = TabController(length: 2, vsync: this);
     formattedDate = DateFormat('MMM, yyyy').format(DateTime.now());
     scrollController = ScrollController();
-    loadUserData();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      loadUserData();
+
       int todayIndex = selectedDate.day - 1;
       scrollController.animateTo(
         todayIndex * itemWidth,
@@ -47,15 +50,21 @@ class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
     });
   }
 
-  Future<void> loadUserData() async {
-    final user = await AuthAPI.getCurrentUser();
-    if (user != null) {
-      setState(() {
-        userId = user['id'] ?? 0;
-      });
+  Future<void> loadTasks() async {
+    final taskVM = Provider.of<TaskViewModel>(context, listen: false);
+    await taskVM.fetchTasksByCategory("Priority", userId: userId);
+    await taskVM.fetchTasksByCategory("Daily", userId: userId);
+  }
 
-      final taskVM = context.read<TaskViewModel>();
-      await taskVM.fetchTasks(userId: userId);
+  Future<void> loadUserData() async {
+    final authVM = Provider.of<AuthViewModel>(context, listen: false);
+    if (authVM.currentUser != null) {
+      userId = authVM.currentUser!.id;
+
+      if (mounted) {
+        setState(() {});
+      }
+      await loadTasks();
     }
   }
 
@@ -296,12 +305,10 @@ class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
               controller: _tabController,
               children: [
                 CalendarPriority(
-                  category: 'Priority',
                   userId: userId,
                   selectedDate: selectedDate,
                 ),
                 CalendarDaily(
-                  category: 'Daily',
                   userId: userId,
                   selectedDate: selectedDate,
                 ),

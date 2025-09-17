@@ -24,7 +24,6 @@ class Task {
     this.todos = const [],
   });
 
-  // Chuyển từ JSON (từ API BE) -> Task object
   factory Task.fromJson(Map<String, dynamic> json) {
     return Task(
       id: json['id'],
@@ -44,7 +43,6 @@ class Task {
     );
   }
 
-  // Chuyển từ Task object -> JSON (gửi API khi tạo/cập nhật)
   Map<String, dynamic> toJson() {
     return {
       'id': id,

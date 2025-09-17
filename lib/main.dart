@@ -11,7 +11,7 @@ import 'package:to_do_list_app/views/auth/login_screen.dart';
 import 'package:to_do_list_app/pages/profile.dart';
 import 'package:to_do_list_app/pages/reset_password.dart';
 import 'package:to_do_list_app/views/auth/register_screen.dart';
-import 'package:to_do_list_app/pages/dashboard.dart';
+import 'package:to_do_list_app/views/dashboard_screen.dart';
 import 'package:to_do_list_app/screens/introduce.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do_list_app/views/spash_screen.dart';
