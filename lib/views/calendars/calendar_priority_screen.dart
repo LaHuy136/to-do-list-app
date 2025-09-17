@@ -11,36 +11,37 @@ import 'package:to_do_list_app/views/task/edit_task_screen.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
 
 class CalendarPriority extends StatelessWidget {
-  final String category;
   final int userId;
   final DateTime selectedDate;
 
   const CalendarPriority({
     super.key,
-    required this.category,
     required this.userId,
     required this.selectedDate,
   });
 
   @override
   Widget build(BuildContext context) {
-    final taskVM = Provider.of<TaskViewModel>(context);
+    final taskVM = context.watch<TaskViewModel>();
+    final tasks = taskVM.getTasksByCategory("Priority");
 
-    bool isSameDay(DateTime d1, DateTime d2) {
-      return d1.year == d2.year && d1.month == d2.month && d1.day == d2.day;
-    }
+    bool isSameDay(DateTime d1, DateTime d2) =>
+        d1.year == d2.year && d1.month == d2.month && d1.day == d2.day;
 
     final filteredTasks =
-        taskVM.tasks.where((task) {
-          return (task.dateStart.isBefore(selectedDate) ||
-                  isSameDay(task.dateStart, selectedDate)) &&
-              (task.dateEnd.isAfter(selectedDate) ||
-                  isSameDay(task.dateEnd, selectedDate));
+        tasks.where((task) {
+          final start = task.dateStart;
+          final end = task.dateEnd;
+
+          return (start.isBefore(selectedDate) ||
+                  isSameDay(start, selectedDate)) &&
+              (end.isAfter(selectedDate) || isSameDay(end, selectedDate));
         }).toList();
+
     if (filteredTasks.isEmpty) {
       return Center(
         child: Text(
-          'No tasks available.',
+          'No priority tasks available.',
           style: TextStyle(fontSize: 16, color: AppColors.disabledPrimary),
         ),
       );
@@ -59,6 +60,15 @@ class CalendarPriority extends StatelessWidget {
 
         return InkWell(
           onTap: () {
+            final now = DateTime.now();
+            if (task.dateEnd.isBefore(DateTime(now.year, now.month, now.day))) {
+              showCustomSnackBar(
+                context: context,
+                message: "This task is already expired!",
+                type: SnackBarType.error,
+              );
+              return;
+            }
             showModalBottomSheet(
               context: context,
               isScrollControlled: true,

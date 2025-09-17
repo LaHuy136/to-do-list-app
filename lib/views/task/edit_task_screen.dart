@@ -71,7 +71,7 @@ class _EditTaskState extends State<EditTask> {
     final picked = await showDatePicker(
       context: context,
       initialDate: isStart ? dateStart : dateEnd,
-      firstDate: DateTime(2000),
+      firstDate: DateTime.now(),
       lastDate: DateTime(2100),
       builder: (context, child) {
         return Theme(

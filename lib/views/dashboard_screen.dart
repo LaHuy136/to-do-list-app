@@ -1,17 +1,18 @@
-// ignore_for_file: deprecated_member_use, avoid_print
+// ignore_for_file: deprecated_member_use, avoid_print, use_build_context_synchronously
 
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:to_do_list_app/components/my_bottom_navbar.dart';
 import 'package:intl/intl.dart';
 import 'package:to_do_list_app/provider/notification.provider.dart';
 import 'package:to_do_list_app/screens/notification.dart';
+import 'package:to_do_list_app/viewmodels/auth_viewmodel.dart';
+import 'package:to_do_list_app/viewmodels/task_viewmodel.dart';
 import 'package:to_do_list_app/views/task/task_section_screen.dart';
-import 'package:to_do_list_app/services/auth.dart';
-import 'package:to_do_list_app/services/task.dart';
 
 import 'package:to_do_list_app/theme/app_colors.dart';
 
@@ -33,40 +34,28 @@ class _TaskManagementState extends State<TaskManagement> {
   @override
   void initState() {
     super.initState();
-    loadUserData();
     formattedDate = DateFormat('EEEE, MMM d yyyy').format(DateTime.now());
-    loadTasks();
-    checkNotificationStatus();
-  }
-
-  Future<void> loadTasks() async {
-    try {
-      final allTasks = await TaskAPI.getAllTasks();
-      setState(() {
-        priorityTasks =
-            allTasks
-                .where((t) => t['category'] == 'Priority')
-                .toList()
-                .cast<Map<String, dynamic>>();
-        dailyTasks =
-            allTasks
-                .where((t) => t['category'] == 'Daily')
-                .toList()
-                .cast<Map<String, dynamic>>();
-      });
-    } catch (e) {
-      print('Lỗi khi tải tasks: $e');
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      loadUserData();
+      checkNotificationStatus();
+    });
   }
 
   Future<void> loadUserData() async {
-    final user = await AuthAPI.getCurrentUser();
-    if (user != null) {
+    final authVM = Provider.of<AuthViewModel>(context, listen: false);
+    if (authVM.currentUser != null) {
       setState(() {
-        userId = user['id'] ?? 0;
-        username = user['username'] ?? '';
+        userId = authVM.currentUser!.id;
+        username = authVM.currentUser!.username;
       });
+
+      await loadTasks();
     }
+  }
+
+  Future<void> loadTasks() async {
+    final taskVM = Provider.of<TaskViewModel>(context, listen: false);
+    await taskVM.fetchTasks(userId: userId);
   }
 
   Future<void> checkNotificationStatus() async {
@@ -96,7 +85,7 @@ class _TaskManagementState extends State<TaskManagement> {
             formattedDate,
             style: TextStyle(
               fontFamily: 'Poppins',
-              fontSize: 14,
+              fontSize: 13,
               fontWeight: FontWeight.w400,
             ),
           ),
@@ -153,45 +142,45 @@ class _TaskManagementState extends State<TaskManagement> {
         ],
       ),
 
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Welcome
-            Text(
-              'Welcome $username',
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontWeight: FontWeight.bold,
-                fontSize: 24,
-              ),
+      body: Consumer<TaskViewModel>(
+        builder: (context, taskVM, child) {
+          return SingleChildScrollView(
+            padding: EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Welcome $username',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24,
+                  ),
+                ),
+                Text(
+                  'Have a nice day ! ',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w400,
+                    fontSize: 16,
+                  ),
+                ),
+                SizedBox(height: 32),
+                TaskSection(
+                  category: 'Priority',
+                  userId: userId,
+                  onTaskChanged: loadTasks,
+                ),
+                const SizedBox(height: 15),
+                TaskSection(
+                  category: 'Daily',
+                  userId: userId,
+                  onTaskChanged: loadTasks,
+                ),
+              ],
             ),
-            Text(
-              'Have a nice day ! ',
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontWeight: FontWeight.w400,
-                fontSize: 16,
-              ),
-            ),
-
-            SizedBox(height: 32),
-            TaskSection(
-              tasks: priorityTasks,
-              category: 'Priority',
-              userId: userId,
-              onTaskChanged: loadTasks,
-            ),
-            const SizedBox(height: 15),
-            TaskSection(
-              tasks: dailyTasks,
-              category: 'Daily',
-              userId: userId,
-              onTaskChanged: loadTasks,
-            ),
-          ],
-        ),
+          );
+        },
       ),
       bottomNavigationBar: MyBottomNavbar(),
     );

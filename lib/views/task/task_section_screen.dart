@@ -1,37 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:to_do_list_app/helpers/general_helper.dart';
+import 'package:to_do_list_app/viewmodels/task_viewmodel.dart';
 import 'package:to_do_list_app/views/task/detail_daily_task_screen.dart';
 import 'package:to_do_list_app/views/task/detail_priority_task_screen.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
 
-class TaskSection extends StatefulWidget {
-  final List<Map<String, dynamic>> tasks;
+class TaskSection extends StatelessWidget {
   final String category;
   final int userId;
   final VoidCallback onTaskChanged;
 
   const TaskSection({
     super.key,
-    required this.tasks,
     required this.category,
     required this.userId,
     required this.onTaskChanged,
   });
 
   @override
-  State<TaskSection> createState() => _TaskSectionState();
-}
-
-class _TaskSectionState extends State<TaskSection> {
-  @override
   Widget build(BuildContext context) {
-    final filteredTasks =
-        widget.tasks
-            .where(
-              (t) =>
-                  t['category'] == widget.category &&
-                  t['user_id'] == widget.userId,
-            )
+    final taskVM = Provider.of<TaskViewModel>(context);
+    final tasks =
+        taskVM
+            .getTasksByCategory(category)
+            .where((t) => t.userId == userId)
+            .map((t) => t.toJson())
             .toList();
 
     final List<Color> taskColors = [
@@ -46,7 +40,7 @@ class _TaskSectionState extends State<TaskSection> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          widget.category == 'Priority' ? 'My Priority Task' : 'Daily Task',
+          category == 'Priority' ? 'My Priority Task' : 'My Daily Task',
           style: const TextStyle(
             fontFamily: 'Poppins',
             fontWeight: FontWeight.w600,
@@ -55,12 +49,12 @@ class _TaskSectionState extends State<TaskSection> {
         ),
         const SizedBox(height: 10),
 
-        if (widget.category == 'Priority')
+        if (category == 'Priority')
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
               children:
-                  filteredTasks.asMap().entries.map((entry) {
+                  tasks.asMap().entries.map((entry) {
                     final index = entry.key;
                     final task = entry.value;
                     final taskTodos = task['todos'] ?? [];
@@ -83,7 +77,7 @@ class _TaskSectionState extends State<TaskSection> {
                           );
 
                           if (result == true) {
-                            widget.onTaskChanged();
+                            onTaskChanged();
                           }
                         },
                         child: Container(
@@ -185,7 +179,7 @@ class _TaskSectionState extends State<TaskSection> {
         else
           Column(
             children:
-                filteredTasks.map((task) {
+                tasks.map((task) {
                   final taskTodos = task['todos'] ?? [];
                   final isCompleted = task['is_done'] == true;
                   final taskCompleted =
@@ -207,9 +201,7 @@ class _TaskSectionState extends State<TaskSection> {
                         );
 
                         if (result == true) {
-                          setState(() {
-                            widget.onTaskChanged();
-                          });
+                          onTaskChanged();
                         }
                       },
                       child: Container(

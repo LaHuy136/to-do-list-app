@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do_list_app/components/my_custom_snackbar.dart';
 import 'package:to_do_list_app/components/my_elevated_button.dart';
@@ -118,8 +119,8 @@ class _DetailPriorityTaskState extends State<DetailPriorityTask> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _buildDateColumn("start", task.dateStart),
-                    _buildDateColumn("end", task.dateEnd, isEnd: true),
+                    _buildDateColumn("start", startDate),
+                    _buildDateColumn("end", endDate, isEnd: true),
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -285,6 +286,7 @@ class _DetailPriorityTaskState extends State<DetailPriorityTask> {
   }
 
   Widget _buildDateColumn(String label, DateTime value, {bool isEnd = false}) {
+    final formattedDate = DateFormat('yyyy-MM-dd').format(value);
     return Column(
       crossAxisAlignment:
           isEnd ? CrossAxisAlignment.end : CrossAxisAlignment.start,
@@ -298,7 +300,7 @@ class _DetailPriorityTaskState extends State<DetailPriorityTask> {
           ),
         ),
         Text(
-          value.toIso8601String().substring(0, 11),
+          formattedDate,
           style: const TextStyle(
             fontFamily: 'Poppins',
             fontWeight: FontWeight.w400,
