@@ -4,15 +4,17 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:to_do_list_app/components/my_bottom_navbar.dart';
-import 'package:to_do_list_app/screens/profile/location.dart';
-import 'package:to_do_list_app/screens/profile/my_profile.dart';
-import 'package:to_do_list_app/screens/profile/settings.dart';
-import 'package:to_do_list_app/screens/profile/statistic.dart';
-import 'package:to_do_list_app/services/auth.dart';
-import 'package:to_do_list_app/services/task.dart';
+import 'package:to_do_list_app/components/my_custom_snackbar.dart';
+import 'package:to_do_list_app/views/profile/location_screen.dart';
+import 'package:to_do_list_app/views/profile/my_profile_screen.dart';
+import 'package:to_do_list_app/views/profile/settings_screen.dart';
+import 'package:to_do_list_app/views/profile/statistic_screen.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
+import 'package:to_do_list_app/viewmodels/auth_viewmodel.dart';
+import 'package:to_do_list_app/viewmodels/task_viewmodel.dart';
 import 'package:to_do_list_app/widget/custom_dialog.dart';
 
 class Profile extends StatefulWidget {
@@ -23,10 +25,6 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-  int userId = 0;
-  String userName = '';
-  String profession = '';
-  String email = '';
   File? avatar;
   String? selectedAddress;
   bool rememberMe = true;
@@ -34,15 +32,15 @@ class _ProfileState extends State<Profile> {
   List<double> monthlyCompletion = List.filled(12, 0);
   int totalTasks = 0;
   int completedTasks = 0;
+  int currentYear = DateTime.now().year;
   @override
   void initState() {
     super.initState();
-    loadUserData();
     loadAddress();
+    loadData();
   }
 
-  Future<void> loadUserData() async {
-    final user = await AuthAPI.getCurrentUser();
+  Future<void> loadData() async {
     final prefs = await SharedPreferences.getInstance();
     final savedPath = prefs.getString('avatar_path');
 
@@ -51,28 +49,38 @@ class _ProfileState extends State<Profile> {
     if (savedPath != null && File(savedPath).existsSync()) {
       avatar = File(savedPath);
     }
-    if (user != null) {
-      setState(() {
-        userId = user['id'] ?? 0;
-        email = user['email'] ?? '';
-        userName = user['username'] ?? '';
-        profession = user['profession'] ?? '';
-      });
-      loadStatistics(DateTime.now().year);
-    }
+
+    loadStatistics(DateTime.now().year);
   }
 
   void loadStatistics(int year) async {
+    final taskVM = Provider.of<TaskViewModel>(context, listen: false);
+    final authVM = context.read<AuthViewModel>();
+    final user = authVM.currentUser;
     try {
-      final result = await TaskAPI.fetchStatistics(userId, year);
-      setState(() {
-        monthlyCompletion = result['monthly'];
-        totalTasks = result['total'];
-        completedTasks = result['completed'];
-        isLoading = false;
-      });
+      final result = await taskVM.fetchStatistics(user!.id, year);
+      if (result != null) {
+        setState(() {
+          monthlyCompletion = result['monthly'];
+          totalTasks = result['total'];
+          completedTasks = result['completed'];
+          currentYear = year;
+          isLoading = false;
+        });
+      } else {
+        showCustomSnackBar(
+          context: context,
+          message: 'Statistic is empty',
+          type: SnackBarType.error,
+        );
+        setState(() => isLoading = false);
+      }
     } catch (e) {
-      print('Error loading statistics $e');
+      showCustomSnackBar(
+        context: context,
+        message: 'Loading statistics error',
+        type: SnackBarType.error,
+      );
       setState(() => isLoading = false);
     }
   }
@@ -90,6 +98,8 @@ class _ProfileState extends State<Profile> {
 
   @override
   Widget build(BuildContext context) {
+    final authVM = context.read<AuthViewModel>();
+    final user = authVM.currentUser;
     return Scaffold(
       backgroundColor: AppColors.primary,
       body: Stack(
@@ -120,7 +130,7 @@ class _ProfileState extends State<Profile> {
                         );
 
                         if (result == true) {
-                          loadUserData();
+                          loadData();
                         }
                       },
                     ),
@@ -133,7 +143,7 @@ class _ProfileState extends State<Profile> {
                       () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => Statistic(userId: userId),
+                          builder: (context) => Statistic(userId: user!.id),
                         ),
                       ),
                     ),
@@ -169,7 +179,7 @@ class _ProfileState extends State<Profile> {
                         MaterialPageRoute(
                           builder:
                               (context) =>
-                                  Settings(email: email, userId: userId),
+                                  Settings(email: user!.email, userId: user.id),
                         ),
                       ),
                     ),
@@ -242,7 +252,7 @@ class _ProfileState extends State<Profile> {
                 children: [
                   // User name
                   Text(
-                    userName,
+                    user?.username ?? "",
                     style: TextStyle(
                       fontSize: 16,
                       fontFamily: 'Poppins',
@@ -254,7 +264,7 @@ class _ProfileState extends State<Profile> {
                   SizedBox(height: 10),
                   // Profession
                   Text(
-                    profession,
+                    user?.profession ?? "",
                     style: TextStyle(
                       fontSize: 14,
                       fontFamily: 'Poppins',
@@ -335,7 +345,7 @@ class _ProfileState extends State<Profile> {
           // Avatar nổi
           Positioned(
             top: 80,
-            left: MediaQuery.of(context).size.width / 2 - 50, // căn giữa
+            left: MediaQuery.of(context).size.width / 2 - 50,
             child: CircleAvatar(
               radius: 45,
               backgroundColor: Colors.white,
@@ -343,8 +353,8 @@ class _ProfileState extends State<Profile> {
                 radius: 45,
                 backgroundImage:
                     avatar != null
-                        ? FileImage(avatar!) as ImageProvider
-                        : AssetImage('assets/images/verify-account1.png'),
+                        ? FileImage(avatar!)
+                        : const AssetImage('assets/images/avatar.png'),
               ),
             ),
           ),

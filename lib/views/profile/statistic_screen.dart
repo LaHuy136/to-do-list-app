@@ -1,9 +1,12 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
-import 'package:to_do_list_app/services/task.dart';
+import 'package:provider/provider.dart';
+import 'package:to_do_list_app/components/my_custom_snackbar.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
+import 'package:to_do_list_app/viewmodels/auth_viewmodel.dart';
+import 'package:to_do_list_app/viewmodels/task_viewmodel.dart';
 
 class Statistic extends StatefulWidget {
   final int userId;
@@ -37,21 +40,39 @@ class _StatisticState extends State<Statistic> {
   @override
   void initState() {
     super.initState();
-    loadStatistics(currentYear);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      loadStatistics(currentYear);
+    });
   }
 
   void loadStatistics(int year) async {
+    final taskVM = Provider.of<TaskViewModel>(context, listen: false);
+    final authVM = context.read<AuthViewModel>();
+    final user = authVM.currentUser;
     try {
-      final result = await TaskAPI.fetchStatistics(widget.userId, year);
-      setState(() {
-        monthlyCompletion = result['monthly'];
-        totalTasks = result['total'];
-        completedTasks = result['completed'];
-        currentYear = year;
-        isLoading = false;
-      });
+      final result = await taskVM.fetchStatistics(user!.id, year);
+      if (result != null) {
+        setState(() {
+          monthlyCompletion = result['monthly'];
+          totalTasks = result['total'];
+          completedTasks = result['completed'];
+          currentYear = year;
+          isLoading = false;
+        });
+      } else {
+        showCustomSnackBar(
+          context: context,
+          message: 'Statistic is empty',
+          type: SnackBarType.error,
+        );
+        setState(() => isLoading = false);
+      }
     } catch (e) {
-      print(e);
+      showCustomSnackBar(
+        context: context,
+        message: 'Loading statistics error',
+        type: SnackBarType.error,
+      );
       setState(() => isLoading = false);
     }
   }

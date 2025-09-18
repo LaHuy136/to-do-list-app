@@ -8,7 +8,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:to_do_list_app/components/my_custom_showDialog.dart';
-import 'package:to_do_list_app/provider/notification.provider.dart';
+import 'package:to_do_list_app/models/notification.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
 
 class NotificationScreen extends StatefulWidget {

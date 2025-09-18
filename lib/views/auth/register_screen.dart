@@ -194,6 +194,10 @@ class _SignUpState extends State<SignUp> {
                     );
 
                     if (success) {
+                      showCustomSnackBar(
+                        context: context,
+                        message: 'Register successfully',
+                      );
                       Navigator.push(
                         context,
                         MaterialPageRoute(

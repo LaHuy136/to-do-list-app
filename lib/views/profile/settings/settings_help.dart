@@ -1,11 +1,12 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:to_do_list_app/components/my_custom_showDialog.dart';
 import 'package:to_do_list_app/components/my_custom_snackbar.dart';
 import 'package:to_do_list_app/components/my_elevated_button.dart';
-import 'package:to_do_list_app/services/message.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
+import 'package:to_do_list_app/viewmodels/message_viewmodel.dart';
 
 class SettingsHelp extends StatefulWidget {
   final int userId;
@@ -22,6 +23,8 @@ class _SettingsHelpState extends State<SettingsHelp> {
   final TextEditingController subjectController = TextEditingController();
   @override
   Widget build(BuildContext context) {
+    final messageVM = Provider.of<MessageViewModel>(context);
+
     return Scaffold(
       backgroundColor: AppColors.primary,
       appBar: PreferredSize(
@@ -106,7 +109,7 @@ class _SettingsHelpState extends State<SettingsHelp> {
                       setState(() => isLoading = true);
 
                       try {
-                        await MessageAPI.sendMessage(
+                        await messageVM.sendMessage(
                           userId: widget.userId,
                           subject: subjectController.text.trim(),
                           message: messageController.text.trim(),
@@ -121,6 +124,7 @@ class _SettingsHelpState extends State<SettingsHelp> {
                         subjectController.clear();
                         messageController.clear();
                         formKey.currentState!.reset();
+                        FocusScope.of(context).unfocus();
                       } catch (e) {
                         showCustomSnackBar(
                           context: context,
@@ -131,7 +135,7 @@ class _SettingsHelpState extends State<SettingsHelp> {
                         setState(() => isLoading = false);
                       }
                     },
-                    isLoading: isLoading,
+                    isLoading: messageVM.isLoading,
                     textButton: 'Send',
                   ),
                 ],

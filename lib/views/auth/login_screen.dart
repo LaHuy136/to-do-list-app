@@ -147,7 +147,7 @@ class _LoginState extends State<Login> {
                   if (success) {
                     showCustomSnackBar(
                       context: context,
-                      message: 'Login successful',
+                      message: 'Login successfully',
                     );
                     Navigator.pushNamedAndRemoveUntil(
                       context,

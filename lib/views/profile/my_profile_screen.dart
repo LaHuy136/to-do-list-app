@@ -7,11 +7,12 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:to_do_list_app/components/my_custom_snackbar.dart';
 import 'package:to_do_list_app/components/my_elevated_button.dart';
-import 'package:to_do_list_app/services/auth.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
+import 'package:to_do_list_app/viewmodels/auth_viewmodel.dart';
 
 class MyProfile extends StatefulWidget {
   const MyProfile({super.key});
@@ -35,7 +36,8 @@ class _MyProfileState extends State<MyProfile> {
   }
 
   Future<void> loadUserData() async {
-    final user = await AuthAPI.getCurrentUser();
+    final authVM = context.read<AuthViewModel>();
+
     final prefs = await SharedPreferences.getInstance();
     final savedPath = prefs.getString('avatar_path');
 
@@ -43,16 +45,18 @@ class _MyProfileState extends State<MyProfile> {
       avatar = File(savedPath);
     }
 
-    if (user != null) {
+    if (authVM.currentUser != null) {
       setState(() {
-        nameController.text = user['username'] ?? '';
-        professionController.text = user['profession'] ?? '';
-        final parseDob = DateTime.tryParse(user['dateofbirth'] ?? '');
+        nameController.text = authVM.currentUser!.username;
+        professionController.text = authVM.currentUser!.profession ?? '';
+        final parseDob = DateTime.tryParse(
+          authVM.currentUser!.dateOfBirth ?? '',
+        );
         if (parseDob != null) {
           formattedDob = parseDob;
           dobController.text = DateFormat('MMM-dd-yyyy').format(parseDob);
         }
-        emailController.text = user['email'] ?? '';
+        emailController.text = authVM.currentUser!.email;
       });
     }
   }
@@ -175,9 +179,7 @@ class _MyProfileState extends State<MyProfile> {
                           backgroundImage:
                               avatar != null
                                   ? FileImage(avatar!) as ImageProvider
-                                  : AssetImage(
-                                    'assets/images/verify-account1.png',
-                                  ),
+                                  : AssetImage('assets/images/avatar.png'),
                         ),
                       ),
                       GestureDetector(
@@ -221,19 +223,18 @@ class _MyProfileState extends State<MyProfile> {
                 // Button Save
                 MyElevatedButton(
                   onPressed: () async {
-                    final success = await AuthAPI.updateUser(
-                      email: emailController.text,
-                      username: nameController.text,
-                      profession: professionController.text,
-                      dateOfBirth: DateFormat(
-                        'yyyy-MM-dd',
-                      ).format(formattedDob!),
+                    final authVM = context.read<AuthViewModel>();
+                    final success = await authVM.updateUser(
+                      emailController.text,
+                      nameController.text,
+                      professionController.text,
+                      DateFormat('yyyy-MM-dd').format(formattedDob!),
                     );
 
                     if (success) {
                       showCustomSnackBar(
                         context: context,
-                        message: 'New profile has been successfully updated',
+                        message: 'New profile has been updated successfully',
                       );
                       Navigator.pop(context, true);
                     } else {
