@@ -1,11 +1,12 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:to_do_list_app/components/my_custom_snackbar.dart';
 import 'package:to_do_list_app/components/my_elevated_button.dart';
 import 'package:to_do_list_app/components/my_text_form_field.dart';
-import 'package:to_do_list_app/services/auth.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
+import 'package:to_do_list_app/viewmodels/auth_viewmodel.dart';
 
 class SettingsSecurity extends StatefulWidget {
   final String email;
@@ -23,6 +24,8 @@ class _SettingsSecurityState extends State<SettingsSecurity> {
   final TextEditingController confirmNewPwController = TextEditingController();
   @override
   Widget build(BuildContext context) {
+    final authVM = Provider.of<AuthViewModel>(context);
+
     return Scaffold(
       backgroundColor: AppColors.primary,
       appBar: PreferredSize(
@@ -164,10 +167,10 @@ class _SettingsSecurityState extends State<SettingsSecurity> {
                           return;
                         }
 
-                        final success = await AuthAPI.updatePassword(
-                          email: widget.email,
-                          currentPassword: currentPw,
-                          newPassword: newPw,
+                        final success = await authVM.updatePassword(
+                          widget.email,
+                          currentPw,
+                          newPw,
                         );
                         if (success) {
                           showCustomSnackBar(
@@ -186,7 +189,7 @@ class _SettingsSecurityState extends State<SettingsSecurity> {
                         setState(() => isLoading = false);
                       }
                     },
-                    isLoading: isLoading,
+                    isLoading: authVM.isLoading,
                     textButton: 'Submit',
                   ),
                 ],

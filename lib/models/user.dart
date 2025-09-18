@@ -22,4 +22,20 @@ class User {
       dateOfBirth: json['dateofbirth'],
     );
   }
+
+  User copyWith({
+    int? id,
+    String? email,
+    String? username,
+    String? profession,
+    String? dateOfBirth,
+  }) {
+    return User(
+      id: id ?? this.id,
+      email: email ?? this.email,
+      username: username ?? this.username,
+      profession: profession ?? this.profession,
+      dateOfBirth: dateOfBirth ?? this.dateOfBirth,
+    );
+  }
 }

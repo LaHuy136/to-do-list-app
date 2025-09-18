@@ -40,7 +40,7 @@ class AuthViewModel extends ChangeNotifier {
       }
       return success;
     } catch (e) {
-      _errorMessage = e.toString();
+      _errorMessage = e.toString().replaceFirst('Exception: ', '');
       return false;
     } finally {
       _setLoading(false);
@@ -58,7 +58,7 @@ class AuthViewModel extends ChangeNotifier {
       );
       return true;
     } catch (e) {
-      _errorMessage = e.toString();
+      _errorMessage = e.toString().replaceFirst('Exception: ', '');
       return false;
     } finally {
       _setLoading(false);
@@ -76,6 +76,7 @@ class AuthViewModel extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     if (token == null) return false;
+
     _setLoading(true);
     try {
       final success = await AuthAPI.updateUser(
@@ -84,17 +85,19 @@ class AuthViewModel extends ChangeNotifier {
         profession: profession,
         dateOfBirth: dateOfBirth,
       );
+
       if (success) {
-        _currentUser = User(
-          id: _currentUser!.id,
+        _currentUser = _currentUser!.copyWith(
           email: email,
           username: username,
+          profession: profession,
+          dateOfBirth: dateOfBirth,
         );
         notifyListeners();
       }
       return success;
     } catch (e) {
-      _errorMessage = e.toString();
+      _errorMessage = e.toString().replaceFirst('Exception: ', '');
       return false;
     } finally {
       _setLoading(false);
@@ -108,7 +111,7 @@ class AuthViewModel extends ChangeNotifier {
       final success = await AuthAPI.verifyCode(email, code);
       return success;
     } catch (e) {
-      _errorMessage = e.toString();
+      _errorMessage = e.toString().replaceFirst('Exception: ', '');
       return false;
     } finally {
       _setLoading(false);
@@ -122,7 +125,46 @@ class AuthViewModel extends ChangeNotifier {
       final success = await AuthAPI.resendCode(email);
       return success;
     } catch (e) {
-      _errorMessage = e.toString();
+      _errorMessage = e.toString().replaceFirst('Exception: ', '');
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  // Reset mật khẩu
+  Future<bool> resetPassword(String email, String newPassword) async {
+    _setLoading(true);
+    try {
+      final success = await AuthAPI.resetPassword(
+        email: email,
+        newPassword: newPassword,
+      );
+      return success;
+    } catch (e) {
+      _errorMessage = e.toString().replaceFirst('Exception: ', '');
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  // Đổi mật khẩu
+  Future<bool> updatePassword(
+    String email,
+    String currentPassword,
+    String newPassword,
+  ) async {
+    _setLoading(true);
+    try {
+      final success = await AuthAPI.updatePassword(
+        email: email,
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+      );
+      return success;
+    } catch (e) {
+      _errorMessage = e.toString().replaceFirst('Exception: ', '');
       return false;
     } finally {
       _setLoading(false);

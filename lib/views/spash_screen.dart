@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:to_do_list_app/screens/introduce.dart';
+import 'package:to_do_list_app/views/introduce_screen.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
 import 'package:to_do_list_app/viewmodels/auth_viewmodel.dart';
 

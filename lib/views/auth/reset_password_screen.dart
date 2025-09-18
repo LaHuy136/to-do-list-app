@@ -1,11 +1,12 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:to_do_list_app/components/my_custom_snackbar.dart';
 import 'package:to_do_list_app/components/my_elevated_button.dart';
 import 'package:to_do_list_app/components/my_text_form_field.dart';
-import 'package:to_do_list_app/services/auth.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
+import 'package:to_do_list_app/viewmodels/auth_viewmodel.dart';
 
 class ResetPassword extends StatefulWidget {
   const ResetPassword({super.key});
@@ -22,6 +23,8 @@ class _ResetPasswordState extends State<ResetPassword> {
   final confirmPwController = TextEditingController();
   @override
   Widget build(BuildContext context) {
+    final authVM = Provider.of<AuthViewModel>(context);
+
     return Scaffold(
       backgroundColor: AppColors.defaultText,
       appBar: AppBar(
@@ -147,25 +150,27 @@ class _ResetPasswordState extends State<ResetPassword> {
               // Button Reset Password
               MyElevatedButton(
                 onPressed: () async {
+                  if (!formKey.currentState!.validate()) return;
+
+                  setState(() => isLoading = true);
+
                   final email = emailController.text.trim();
                   final newPassword = newPasswordController.text;
                   final confirmPassword = confirmPwController.text;
 
-                  if (newPassword != confirmPassword) {
-                    showCustomSnackBar(
-                      context: context,
-                      message: 'Passwords do not match',
-                      type: SnackBarType.error,
-                    );
-                    return;
-                  }
-
-                  setState(() => isLoading = true);
-
                   try {
-                    final success = await AuthAPI.resetPassword(
-                      email: email,
-                      newPassword: newPassword,
+                    if (newPassword != confirmPassword) {
+                      showCustomSnackBar(
+                        context: context,
+                        message: 'Passwords do not match',
+                        type: SnackBarType.error,
+                      );
+                      return;
+                    }
+
+                    final success = await authVM.resetPassword(
+                      email,
+                      newPassword,
                     );
 
                     if (success) {
@@ -185,86 +190,11 @@ class _ResetPasswordState extends State<ResetPassword> {
                     setState(() => isLoading = false);
                   }
                 },
-                isLoading: isLoading,
+                isLoading: authVM.isLoading,
                 textButton: 'Reset Password',
               ),
 
               const SizedBox(height: 35),
-              // Or Login with
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('—', style: TextStyle(color: AppColors.primary)),
-                  const SizedBox(width: 6),
-                  Text(
-                    'Or Login with',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Text('—', style: TextStyle(color: AppColors.primary)),
-                ],
-              ),
-
-              const SizedBox(height: 20),
-              // // Social Button
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              //   children: [
-              //     // Google
-              //     Expanded(
-              //       child: Container(
-              //         decoration: BoxDecoration(
-              //           borderRadius: BorderRadius.circular(8),
-              //           border: Border.all(color: AppColors.disabledTertiary),
-              //         ),
-              //         padding: EdgeInsets.all(16),
-              //         child: SvgPicture.asset(
-              //           'assets/icons/google.svg',
-              //           width: 35,
-              //           height: 35,
-              //         ),
-              //       ),
-              //     ),
-
-              //     const SizedBox(width: 40),
-              //     // Facebook
-              //     Expanded(
-              //       child: Container(
-              //         decoration: BoxDecoration(
-              //           borderRadius: BorderRadius.circular(8),
-              //           border: Border.all(color: AppColors.disabledTertiary),
-              //         ),
-              //         padding: EdgeInsets.all(16),
-              //         child: SvgPicture.asset(
-              //           'assets/icons/facebook.svg',
-              //           width: 35,
-              //           height: 35,
-              //         ),
-              //       ),
-              //     ),
-
-              //     const SizedBox(width: 40),
-              //     // Twitter
-              //     Expanded(
-              //       child: Container(
-              //         decoration: BoxDecoration(
-              //           borderRadius: BorderRadius.circular(8),
-              //           border: Border.all(color: AppColors.disabledTertiary),
-              //         ),
-              //         padding: EdgeInsets.all(16),
-              //         child: SvgPicture.asset(
-              //           'assets/icons/twitter.svg',
-              //           width: 35,
-              //           height: 35,
-              //         ),
-              //       ),
-              //     ),
-              //   ],
-              // ),
             ],
           ),
         ),

@@ -4,15 +4,17 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:to_do_list_app/viewmodels/message_viewmodel.dart';
+import 'package:to_do_list_app/viewmodels/onboading_viewmodel.dart';
 import 'package:to_do_list_app/views/calendars/calendar_screen.dart';
 import 'package:to_do_list_app/viewmodels/task_viewmodel.dart';
 import 'package:to_do_list_app/viewmodels/todoitem_viewmodel.dart';
 import 'package:to_do_list_app/views/auth/login_screen.dart';
-import 'package:to_do_list_app/pages/profile.dart';
-import 'package:to_do_list_app/pages/reset_password.dart';
+import 'package:to_do_list_app/views/profile/profile_screen.dart';
+import 'package:to_do_list_app/views/auth/reset_password_screen.dart';
 import 'package:to_do_list_app/views/auth/register_screen.dart';
 import 'package:to_do_list_app/views/dashboard_screen.dart';
-import 'package:to_do_list_app/screens/introduce.dart';
+import 'package:to_do_list_app/views/introduce_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do_list_app/views/spash_screen.dart';
 import 'package:to_do_list_app/viewmodels/auth_viewmodel.dart';
@@ -38,6 +40,12 @@ void main() async {
           create: (_) => TodoItemViewModel(),
         ),
         ChangeNotifierProvider<TaskViewModel>(create: (_) => TaskViewModel()),
+        ChangeNotifierProvider<OnboardingViewModel>(
+          create: (_) => OnboardingViewModel(),
+        ),
+        ChangeNotifierProvider<MessageViewModel>(
+          create: (_) => MessageViewModel(),
+        ),
       ],
       child: MyApp(fcmToken: token),
     ),

@@ -1,7 +1,9 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:to_do_list_app/components/my_elevated_button.dart';
-import 'package:to_do_list_app/models/onboarding.dart';
-import 'package:to_do_list_app/services/onboarding.dart';
+import 'package:to_do_list_app/viewmodels/onboading_viewmodel.dart';
 import 'package:to_do_list_app/theme/app_colors.dart';
 
 class Introduce extends StatefulWidget {
@@ -12,28 +14,67 @@ class Introduce extends StatefulWidget {
 }
 
 class _IntroduceState extends State<Introduce> {
-  late Future<List<OnboardingData>> _futureData;
   final PageController _controller = PageController();
   int _currentIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _futureData = OnboardingAPI.fetchOnboarding();
+    Future.microtask(() {
+      Provider.of<OnboardingViewModel>(
+        context,
+        listen: false,
+      ).fetchOnboarding();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<OnboardingData>>(
-      future: _futureData,
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
+    return Consumer<OnboardingViewModel>(
+      builder: (context, vm, child) {
+        if (vm.isLoading) {
           return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
+            body: Center(
+              child: SizedBox(
+                width: 25,
+                height: 25,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  color: AppColors.primary,
+                ),
+              ),
+            ),
           );
         }
 
-        final data = snapshot.data!;
+        if (vm.errorMessage != null) {
+          return Scaffold(
+            body: Center(
+              child: Text(
+                "Lỗi: ${vm.errorMessage}",
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AppColors.disabledPrimary,
+                ),
+              ),
+            ),
+          );
+        }
+
+        final data = vm.onboardingList;
+        if (data.isEmpty) {
+          return const Scaffold(
+            body: Center(
+              child: Text(
+                "Không có dữ liệu onboarding",
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AppColors.disabledPrimary,
+                ),
+              ),
+            ),
+          );
+        }
 
         return Scaffold(
           backgroundColor: AppColors.defaultText,
@@ -77,7 +118,6 @@ class _IntroduceState extends State<Introduce> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Nếu ảnh là URL:
                     Image.network(
                       'http://192.168.38.126:3000${item.imageUrl}',
                       width: 300,
@@ -107,7 +147,6 @@ class _IntroduceState extends State<Introduce> {
                     MyElevatedButton(
                       onPressed: () {
                         if (_currentIndex == data.length - 1) {
-                          // Chuyển sang màn chính
                           Navigator.pushReplacementNamed(context, '/login');
                         } else {
                           _controller.nextPage(
